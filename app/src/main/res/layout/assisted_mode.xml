@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/AssistedAppLayout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <Button
+        android:id="@+id/BrakeButton"
+        style="@style/Widget.AppCompat.Button"
+        android:layout_width="174dp"
+        android:layout_height="101dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginBottom="16dp"
+        android:text="Brake"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <com.example.trailerbackerupperapp.customwidgets.ArrowsView
+        android:id="@+id/ArrowsView"
+        android:layout_width="163dp"
+        android:layout_height="145dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:srcCompat="@tools:sample/avatars" />
+
+    <ImageView
+        android:id="@+id/TrailerCameraView"
+        android:layout_width="303dp"
+        android:layout_height="164dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.26999998"
+        tools:srcCompat="@tools:sample/avatars" />
+
+    <Button
+        android:id="@+id/GasButton"
+        style="@style/Widget.AppCompat.Button"
+        android:layout_width="167dp"
+        android:layout_height="105dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="16dp"
+        android:text="Gas"
+        android:onClick="gas_pressed"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <Button
+        android:id="@+id/Forward"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="10dp"
+        android:text="Forward"
+        app:layout_constraintBottom_toBottomOf="@+id/Park"
+        app:layout_constraintEnd_toStartOf="@+id/Park"
+        app:layout_constraintTop_toTopOf="@+id/Park" />
+
+    <Button
+        android:id="@+id/Park"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        android:text="Park"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <Button
+        android:id="@+id/Reverse"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="10dp"
+        android:text="Reverse"
+        app:layout_constraintBottom_toBottomOf="@+id/Park"
+        app:layout_constraintStart_toEndOf="@+id/Park"
+        app:layout_constraintTop_toTopOf="@+id/Park"
+        app:layout_constraintVertical_bias="0.0" />
+
+    <Button
+        android:id="@+id/ManualModeButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="16dp"
+        android:text="Manual Mode"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
+        android:id="@+id/AssistedModeButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:text="Assisted Mode"
+        app:layout_constraintEnd_toEndOf="@+id/ManualModeButton"
+        app:layout_constraintStart_toStartOf="@+id/ManualModeButton"
+        app:layout_constraintTop_toBottomOf="@+id/ManualModeButton" />
+
+    <Button
+        android:id="@+id/AutomaticModeButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:text="Automatic Mode"
+        app:layout_constraintEnd_toEndOf="@+id/AssistedModeButton"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="@+id/AssistedModeButton"
+        app:layout_constraintTop_toBottomOf="@+id/AssistedModeButton" />
+</androidx.constraintlayout.widget.ConstraintLayout>
