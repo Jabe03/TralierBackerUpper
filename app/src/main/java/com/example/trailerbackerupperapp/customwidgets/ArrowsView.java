@@ -18,6 +18,9 @@ public class ArrowsView extends View {
     private final static int targetArrowLength = 300;
     private final static double trueArrowRatio = 0.65;
     private final static double steeringAngleRange = Math.toRadians(21);
+    private final static double arrowTipRatio = 0.2;
+    private final static double arrowTipAngle = (5.0/6.0) * Math.PI;
+    private static final double inflationFactor = 1;
     private double trueArrowAngle;
     private float[] trueArrow;
     private double targetArrowAngle;
@@ -70,8 +73,8 @@ public class ArrowsView extends View {
         targetArrowAngle = 0;
         targetArrow = new float[]{0,targetArrowLength};
         trueArrow = new float[]{0,(float)(targetArrowLength*trueArrowRatio)};
-        setTargetArrowAngle(Math.PI *0.5);
-        setTrueArrowAngle(-Math.PI * 0.5);
+        setTargetArrowAngle(Math.PI *0.25);
+        setTrueArrowAngle(-Math.PI * 0.25);
 
     }
 
@@ -83,14 +86,18 @@ public class ArrowsView extends View {
     }
 
     private double getBoundedArrowAngle(double theta){
-        double normalizedTheta = ((theta + Math.PI) % (2*Math.PI)) - Math.PI;
-        if(normalizedTheta > steeringAngleRange ){
-            return (steeringAngleRange);
+        double normalizedTheta = ((theta*inflationFactor + Math.PI) % (2*Math.PI)) - Math.PI;
+
+        if(normalizedTheta > steeringAngleRange*inflationFactor){
+            return (steeringAngleRange*inflationFactor);
         }
-        else if(normalizedTheta < -steeringAngleRange){
-            return -steeringAngleRange;
+        else if(normalizedTheta < -steeringAngleRange*inflationFactor){
+            return -steeringAngleRange*inflationFactor;
         }
         return normalizedTheta;
+
+
+
     }
     public void setTrueArrowAngle(double theta){
         trueArrowAngle = getBoundedArrowAngle(theta);
@@ -122,6 +129,7 @@ public class ArrowsView extends View {
 
 
     private void drawArrow(float[] arrow, Canvas c, Paint p){
+        p.setStrokeWidth(10);
         Log.d("Drawing arrow", "Arrow coords: " + Arrays.toString(arrow));
         float startX = getWidth()/((float)2);
         float startY = getHeight();
@@ -134,5 +142,17 @@ public class ArrowsView extends View {
 
         //c.drawLine(0,0, arrow[0], arrow[1], p);
         c.drawLine(startX, startY, endX, endY, p);
+        p.setStrokeWidth(5);
+        float[] arrowTip = new float[2];
+        double cosRatio = Math.cos( arrowTipAngle);
+        double sinRatio = Math.sin(arrowTipAngle);
+        arrowTip[0] = (float)((arrow[0]*cosRatio - arrow[1]*sinRatio)*arrowTipRatio);
+        arrowTip[1] = (float)((arrow[0]*sinRatio + arrow[1]*cosRatio)*arrowTipRatio);
+        c.drawLine(endX, endY, endX + arrowTip[0], endY - arrowTip[1], p);
+        cosRatio = Math.cos( -arrowTipAngle);
+        sinRatio = Math.sin( -arrowTipAngle);
+        arrowTip[0] = (float)((arrow[0]*cosRatio - arrow[1]*sinRatio)*arrowTipRatio);
+        arrowTip[1] = (float)((arrow[0]*sinRatio + arrow[1]*cosRatio)*arrowTipRatio);
+        c.drawLine(endX, endY, endX + arrowTip[0], endY - arrowTip[1], p);
     }
 }
