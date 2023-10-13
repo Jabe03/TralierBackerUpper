@@ -21,6 +21,7 @@ class MainActivity : AppCompatActivity() {
     fun gas_pressed(view: View){
         v.invalidate();
         Log.d("Buttons", "Gas pressed!");
+        v.rotateArrowsContinuously();
     }
 
 
