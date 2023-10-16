@@ -13,14 +13,25 @@ import androidx.annotation.Nullable;
 
 import java.util.Arrays;
 
+/**
+ * @author Joshua Bergthold
+ * ArrowsView is a custom widget that displays a "true" arrow and a "target" arrow.
+ * The intent is for the arrows to represent turning angles which the computer suggests and the actual turning angle that the user has input.
+ * The true arrow represents the user's input and the target arrow represents the computer's suggestion.
+ */
 public class ArrowsView extends View {
     private Paint p;
+
+    /**
+     *
+     */
     private final static int targetArrowLength = 300;
     private final static double trueArrowRatio = 0.65;
     private final static double steeringAngleRange = Math.toRadians(21);
     private final static double arrowTipRatio = 0.2;
     private final static double arrowTipAngle = (5.0/6.0) * Math.PI;
-    private static final double inflationFactor = 1;
+    private static final double inflationFactor = 2;
+    private boolean continuouslyRotating;
     private double trueArrowAngle;
     private float[] trueArrow;
     private double targetArrowAngle;
@@ -42,6 +53,7 @@ public class ArrowsView extends View {
         init();
     }
     public void rotateArrowsContinuously(){
+        if(continuouslyRotating) return;
         Thread arrowRotator = new Thread(() -> {
             double refreshRate = 60;
             double angleTrueVelocity = Math.PI;
@@ -49,7 +61,7 @@ public class ArrowsView extends View {
             float angleTrue = 0;
             float angleTarget = 0;
             long last = System.currentTimeMillis();
-            while(true){
+            while(continuouslyRotating){
                 long now = System.currentTimeMillis();
                 if(now - last >= 1000/refreshRate){
                     angleTrue += angleTrueVelocity/refreshRate;
@@ -61,13 +73,18 @@ public class ArrowsView extends View {
                 }
             }
         });
-
+        continuouslyRotating = true;
         arrowRotator.start();
+    }
+
+    public void stopRotating(){
+        continuouslyRotating = false;
     }
 
     private void init(){
         p = new Paint(Paint.ANTI_ALIAS_FLAG);
         p.setStrokeWidth(10);
+        continuouslyRotating = false;
         //p.setColor(Color.GREEN);
         trueArrowAngle = 0;
         targetArrowAngle = 0;
@@ -104,6 +121,7 @@ public class ArrowsView extends View {
 
         trueArrow[0] = (float)(Math.cos(trueArrowAngle + Math.PI/((float)2)) * trueArrowRatio* targetArrowLength);
         trueArrow[1] = (float)(Math.sin(trueArrowAngle + Math.PI/((float)2)) * trueArrowRatio*targetArrowLength);
+        invalidate();
     }
 
     public void setTargetArrowAngle(double theta){
@@ -111,6 +129,7 @@ public class ArrowsView extends View {
         targetArrow[0] = (float)(Math.cos(targetArrowAngle + Math.PI/((float)2)) * targetArrowLength);
         targetArrow[1] = (float)(Math.sin(targetArrowAngle + Math.PI/((float)2)) * targetArrowLength);
         Log.d("Arrow math", "New points for arrow after angle " + theta + ": " + Arrays.toString(targetArrow));
+        invalidate();
     }
 
 
