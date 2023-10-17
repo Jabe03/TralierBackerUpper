@@ -81,8 +81,9 @@ public class ArrowsView extends View {
         continuouslyRotating = false;
     }
 
-    private void init(){
-        p = new Paint(Paint.ANTI_ALIAS_FLAG);
+    private void init(){ /* this function is automatically called when the ArrowsView object is first created */
+        p = new Paint(Paint.ANTI_ALIAS_FLAG); /* creates new paintbrush object called p with anti alias flag set to true which allows for
+        smooth rendering of the edges of lines and shapes */
         p.setStrokeWidth(10);
         continuouslyRotating = false;
         //p.setColor(Color.GREEN);
@@ -140,10 +141,20 @@ public class ArrowsView extends View {
     @Override
     public void onDraw(Canvas c){
         super.onDraw(c);
-        p.setColor(Color.GREEN);
-        drawArrow(targetArrow, c , p);
-        p.setColor(Color.RED);
-        drawArrow(trueArrow, c, p);
+        p.setColor(Color.GREEN); /* target arrow to be green colored */
+        drawArrow(targetArrow, c , p); /* calls ArrowsView object function which takes in array of two floats called targetArrow representing
+        horizontal distance of the end point of the target arrow
+            (which is the green longer arrow that stays in vertical orientation and represents the direction which the other arrow called
+            "true arrow" (representing current steer direction) must be matched up to as close as possible in order to achieve accurate steering)
+        from the middle vertical of window (this value is set to 0) and the vertical distance of the end point of the target
+        arrow from the top of window (this value is set to the target arrow length of 300), canvas object c which "hosts the draw calls",
+        and Paint object p which represents the specified paint brush */
+        p.setColor(Color.RED); /* true arrow to be red colored */
+        drawArrow(trueArrow, c, p); /* trueArrow variable is a two float array with first value representing the horizontal distance of
+        the end point of the true arrow from the middle vertical of the window (this value is set to 0) and the vertical distance of the end point
+        of the target arrow from the top of the window (this value is set to 65 percent of the target arrow length of 300). the true arrow is the
+        red shorter arrow which represents the current steering direction of the vehicle and the driver must align it as close to the target arrow as possible
+        in order to accomplish correct steering angle */
     }
 
 
