@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
 import android.hardware.Sensor;
 import androidx.appcompat.app.AppCompatActivity;
@@ -22,6 +23,8 @@ public class MainActivity extends AppCompatActivity {
     private GyroDetector gyro;
     ArrayList<TextView> debugViews;
 
+    private Button gasButton;
+
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.assisted_mode);
@@ -36,6 +39,8 @@ public class MainActivity extends AppCompatActivity {
 
         initializeGyroscope();
         arrowsView = findViewById(R.id.ArrowsView);
+        
+
     }
 
 
@@ -111,6 +116,15 @@ public class MainActivity extends AppCompatActivity {
     public void forward_pressed(View view){
         Log.d("Buttons", "Forward pressed!");
 
+
+    }
+
+
+
+    public void onPush(){
+
+    }
+    public void onRelease(){
 
     }
 }

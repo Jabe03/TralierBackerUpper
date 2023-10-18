@@ -142,11 +142,11 @@ public class ArrowsView extends View {
         targetArrowAngle = 0;
         targetArrow = new float[]{0, TARGET_ARROW_LENGTH};/* represents initial start and end points of target arrow relative to axises, is vertical */
         trueArrow = new float[]{0,(float)(TARGET_ARROW_LENGTH * TRUE_ARROW_RATIO)};  /* true arrow is 65 percent the length of target arrow, also vertically oriented */
-        setTargetArrowAngle(Math.PI *0.25); /* calls function resetting orientation of target arrow using two value coords */
+        //setTargetArrowAngle(Math.PI *0.25); /* calls function resetting orientation of target arrow using two value coords */
 
     }
 
-    
+
     private double getBoundedArrowAngle(double theta){
         double normalizedTheta = ((theta* INFLATION_FACTOR + Math.PI) % (2*Math.PI)) - Math.PI;
 
@@ -201,7 +201,12 @@ public class ArrowsView extends View {
         in order to accomplish correct steering angle */
     }
 
-
+    /**
+     * This draws an arrow on the screen
+     * @param arrow array that contains the coordinates of the tip of the arrow
+     * @param c Canvas to draw the arrow on
+     * @param p
+     */
     private void drawArrow(float[] arrow, Canvas c, Paint p){
         p.setStrokeWidth(10);
         //Log.d("Drawing arrow", "Arrow coords: " + Arrays.toString(arrow));
