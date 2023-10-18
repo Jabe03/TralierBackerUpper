@@ -25,6 +25,15 @@ public class MainActivity extends AppCompatActivity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.assisted_mode);
+        Thread clientmaker = new Thread(new Runnable(){
+            public void run(){
+                new Client("172.17.61.115", 5000);
+            }
+
+
+        });
+        clientmaker.start();
+
         initializeGyroscope();
         arrowsView = findViewById(R.id.ArrowsView);
     }
@@ -76,7 +85,7 @@ public class MainActivity extends AppCompatActivity {
         return false;
     }
     public void update_orientation(){
-        Log.d("Updating UI", "Updating orientation");
+        //Log.d("Updating UI", "Updating orientation");
         float[] values = gyro.getPhoneRotation();
         double yaw = values[0] *(360/(2* Math.PI));
         double pitch = values[1]  *(360/(2* Math.PI));

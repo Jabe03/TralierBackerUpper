@@ -56,7 +56,7 @@ public class GyroDetector implements SensorEventListener {
     }   */
 
     private void computeOrientation(float[] R) {
-        Log.d("Backend", "Computing orientation...");
+        //Log.d("Backend", "Computing orientation...");
         float[] orientationData = new float[3];
         SensorManager.getOrientation(R, orientationData);
         angles[0] = m_filters[0].append(orientationData[0]);
@@ -80,14 +80,14 @@ public class GyroDetector implements SensorEventListener {
 
     @Override
     public void onSensorChanged(SensorEvent event) {
-        Log.d("Gyroscope", "Sensor changed! Event type: " + event.sensor.getStringType());
+        //Log.d("Gyroscope", "Sensor changed! Event type: " + event.sensor.getStringType());
         if (event.sensor.getType() == Sensor.TYPE_GRAVITY) {
             mGravity = event.values;
-            Log.d("Gyroscope", "Gravity values updated to: " + Arrays.toString(mGravity));
+            //Log.d("Gyroscope", "Gravity values updated to: " + Arrays.toString(mGravity));
         }
         if (event.sensor.getType() == Sensor.TYPE_MAGNETIC_FIELD) {
             mGeomagnetic = event.values;
-            Log.d("Gyroscope", "Mag field values updated to: " + Arrays.toString(mGeomagnetic));
+            //Log.d("Gyroscope", "Mag field values updated to: " + Arrays.toString(mGeomagnetic));
         }
         if (mGravity != null && mGeomagnetic != null) {
             float[] R = new float[9];

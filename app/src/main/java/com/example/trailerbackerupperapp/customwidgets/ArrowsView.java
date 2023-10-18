@@ -20,6 +20,9 @@ import java.util.Arrays;
  * The true arrow represents the user's input and the target arrow represents the computer's suggestion.
  */
 public class ArrowsView extends View {
+    /**
+     * Paint object used to darw the arrows in the screen
+     */
     private Paint p;
 
     /**
@@ -35,13 +38,42 @@ public class ArrowsView extends View {
      * The actual range that the arrow view represents (+/- steeringAngleRange)
      */
     private final static double STEERING_ANGLE_RANGE = Math.toRadians(21);
-    private final static double ARROW_TIP_RATIO = 0.2;
-    private final static double ARROW_TIP_ANGLE = (5.0/6.0) * Math.PI;
+    /**
+     * The factor by which the angles will be exaggerated visually.
+     * For example, if the STEERING_ANGLE_RANGE is 20 degrees and the inflation factor is 2, the maximum visual angle of both arrows is +/- 2*20 = +/- 40 degrees).
+     * 0 degrees will still be represented as 0 degrees visually, but any other angle is angle*INFLATION_FACTOR.
+     */
     private static final double INFLATION_FACTOR = 2;
+    /**
+     * Length of the tip of the arrow relative to the length of the arrow itself.
+     */
+    private final static double ARROW_TIP_RATIO = 0.2;
+    /**
+     * Angle between shaft of the arrow and one of its tips
+     */
+    private final static double ARROW_TIP_ANGLE = Math.PI/4;
+    /**
+     * Used for debug. True if and only if the thread that continuously rotates the arrows is running
+     */
     private boolean continuouslyRotating;
+    /**
+     * Angle, in radians, of the true arrow.
+     */
     private double trueArrowAngle;
+
+    /**
+     * Unit vector representing the position of the trueArrow
+     */
     private float[] trueArrow;
+
+    /**
+     * Angle, in radians, of the target arrow
+     */
     private double targetArrowAngle;
+
+    /**
+     * Unit vector representing the position of the targetArrow
+     */
     private float[] targetArrow;
 
 
@@ -59,6 +91,10 @@ public class ArrowsView extends View {
         super(context, attrs, defStyleAttr);
         init();
     }
+
+    /**
+     * Used for testing, creates an arrowRotator thread that continuously rotates both of the arrows in the ArrowsView
+     */
     public void rotateArrowsContinuously(){
         if(continuouslyRotating) return; /* This check ensures that only one arrow rotator thread is active at a time. */
         Thread arrowRotator = new Thread(() -> { /* while this thread is running, it rotates both arrows at the given rates */
@@ -88,10 +124,16 @@ public class ArrowsView extends View {
         arrowRotator.start(); /* starts the arrow rotator thread defined in this function */
     }
 
+    /**
+     * Stops the arrowRotator thread
+     */
     public void stopRotating(){
         continuouslyRotating = false;
     }
 
+    /**
+     * Setup for ArrowsView, always called during its constructors
+     */
     private void init(){ /* this function is automatically called when the ArrowsView object is first created */
         p = new Paint(Paint.ANTI_ALIAS_FLAG); /* creates new paintbrush object called p with anti alias flag set to true which allows for
         smooth rendering of the edges of lines and shapes */
@@ -104,13 +146,7 @@ public class ArrowsView extends View {
 
     }
 
-    public double getTrueArrowAngle(){
-        return trueArrowAngle -  Math.PI/((float)2);
-    }
-    public double getTargetArrowAngle(){
-        return targetArrowAngle - Math.PI/((float)2);
-    }
-
+    
     private double getBoundedArrowAngle(double theta){
         double normalizedTheta = ((theta* INFLATION_FACTOR + Math.PI) % (2*Math.PI)) - Math.PI;
 
@@ -137,7 +173,7 @@ public class ArrowsView extends View {
         targetArrowAngle = getBoundedArrowAngle(theta);
         targetArrow[0] = (float)(Math.cos(targetArrowAngle + Math.PI/((float)2)) * TARGET_ARROW_LENGTH);
         targetArrow[1] = (float)(Math.sin(targetArrowAngle + Math.PI/((float)2)) * TARGET_ARROW_LENGTH);
-        Log.d("Arrow math", "New points for arrow after angle " + theta + ": " + Arrays.toString(targetArrow));
+        //Log.d("Arrow math", "New points for arrow after angle " + theta + ": " + Arrays.toString(targetArrow));
         invalidate();
     }
 
@@ -168,27 +204,27 @@ public class ArrowsView extends View {
 
     private void drawArrow(float[] arrow, Canvas c, Paint p){
         p.setStrokeWidth(10);
-        Log.d("Drawing arrow", "Arrow coords: " + Arrays.toString(arrow));
+        //Log.d("Drawing arrow", "Arrow coords: " + Arrays.toString(arrow));
         float startX = getWidth()/((float)2);
         float startY = getHeight();
         float endX = startX + arrow[0];
         float endY = startY - arrow[1];
-        Log.d(
+        /*Log.d(
                 "Drawing arrow" ,
                 "On-screen coords" + "[" + startX + ", " + startY + ", " + endX + ", " + endY + "]"
-        );
+        );*/
 
         //c.drawLine(0,0, arrow[0], arrow[1], p);
         c.drawLine(startX, startY, endX, endY, p);
         p.setStrokeWidth(5);
         float[] arrowTip = new float[2];
-        double cosRatio = Math.cos(ARROW_TIP_ANGLE);
-        double sinRatio = Math.sin(ARROW_TIP_ANGLE);
+        double cosRatio = Math.cos(Math.PI - ARROW_TIP_ANGLE);
+        double sinRatio = Math.sin(Math.PI - ARROW_TIP_ANGLE);
         arrowTip[0] = (float)((arrow[0]*cosRatio - arrow[1]*sinRatio)* ARROW_TIP_RATIO);
         arrowTip[1] = (float)((arrow[0]*sinRatio + arrow[1]*cosRatio)* ARROW_TIP_RATIO);
         c.drawLine(endX, endY, endX + arrowTip[0], endY - arrowTip[1], p);
-        cosRatio = Math.cos( -ARROW_TIP_ANGLE);
-        sinRatio = Math.sin( -ARROW_TIP_ANGLE);
+        cosRatio = Math.cos( Math.PI + ARROW_TIP_ANGLE);
+        sinRatio = Math.sin( Math.PI + ARROW_TIP_ANGLE);
         arrowTip[0] = (float)((arrow[0]*cosRatio - arrow[1]*sinRatio)* ARROW_TIP_RATIO);
         arrowTip[1] = (float)((arrow[0]*sinRatio + arrow[1]*cosRatio)* ARROW_TIP_RATIO);
         c.drawLine(endX, endY, endX + arrowTip[0], endY - arrowTip[1], p);
