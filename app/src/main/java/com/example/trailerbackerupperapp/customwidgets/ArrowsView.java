@@ -234,7 +234,8 @@ public class ArrowsView extends View {
         c.drawLine(startX, startY, endX, endY, p); /* draws the arrow shaft */
         p.setStrokeWidth(5); /* arrow tip to be half the width of 10px arrow shaft width */
         float[] arrowTip = new float[2];
-        double cosRatio = Math.cos(Math.PI - ARROW_TIP_ANGLE);
+        double cosRatio = Math.cos(Math.PI - ARROW_TIP_ANGLE); /* pi part represents shaft, minus indicates clockwise rotation, clockwise
+        from the shaft is left */
         double sinRatio = Math.sin(Math.PI - ARROW_TIP_ANGLE);
         arrowTip[0] = (float)((arrow[0]*cosRatio - arrow[1]*sinRatio)* ARROW_TIP_RATIO);
         arrowTip[1] = (float)((arrow[0]*sinRatio + arrow[1]*cosRatio)* ARROW_TIP_RATIO);
