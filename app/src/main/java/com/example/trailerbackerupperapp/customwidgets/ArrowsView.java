@@ -238,11 +238,11 @@ public class ArrowsView extends View {
         double sinRatio = Math.sin(Math.PI - ARROW_TIP_ANGLE);
         arrowTip[0] = (float)((arrow[0]*cosRatio - arrow[1]*sinRatio)* ARROW_TIP_RATIO);
         arrowTip[1] = (float)((arrow[0]*sinRatio + arrow[1]*cosRatio)* ARROW_TIP_RATIO);
-        c.drawLine(endX, endY, endX + arrowTip[0], endY - arrowTip[1], p); /* one side of arrowhead drawn, not sure which */
+        c.drawLine(endX, endY, endX + arrowTip[0], endY - arrowTip[1], p); /* left side of arrowhead drawn */
         cosRatio = Math.cos( Math.PI + ARROW_TIP_ANGLE);
         sinRatio = Math.sin( Math.PI + ARROW_TIP_ANGLE);
         arrowTip[0] = (float)((arrow[0]*cosRatio - arrow[1]*sinRatio)* ARROW_TIP_RATIO);
         arrowTip[1] = (float)((arrow[0]*sinRatio + arrow[1]*cosRatio)* ARROW_TIP_RATIO);
-        c.drawLine(endX, endY, endX + arrowTip[0], endY - arrowTip[1], p); /* other side of the arrowhead is drawn */
+        c.drawLine(endX, endY, endX + arrowTip[0], endY - arrowTip[1], p); /* right side of the arrowhead is drawn */
     }
 }
