@@ -59,7 +59,10 @@ public class MainActivity extends AppCompatActivity {
     public void toggle_debug(){
         debug = !debug;
         for(TextView t: debugViews){
-                t.setEnabled(debug);
+            if(debug)
+                t.setVisibility(View.GONE);
+            else
+                t.setVisibility(View.VISIBLE);
 
         }
     }
@@ -89,11 +92,11 @@ public class MainActivity extends AppCompatActivity {
     public void gas_pressed(View view){
 
         Log.d("Buttons", "Gas pressed!");
-        arrowsView.rotateArrowsContinuously();
+        //arrowsView.rotateArrowsContinuously();
     }
 
     public void brake_pressed(View view){
-        arrowsView.stopRotating();
+        //arrowsView.stopRotating();
     }
 
     public void forward_pressed(View view){

@@ -13,8 +13,8 @@ import java.util.Arrays;
 
 public class GyroDetector implements SensorEventListener {
 
-    private static final int pollingRate = 10;
-    private boolean isPolling;
+    private static final int ANGLES_BUFFER = 2;
+
     private float[] m_rotationMatrix;
     private float[] m_orientation;
 
@@ -28,13 +28,12 @@ public class GyroDetector implements SensorEventListener {
     private float[] mGeomagnetic;
 
     public GyroDetector(MainActivity m) {
-        isPolling = false;
         m_rotationMatrix = new float[3];
         m_orientation = new float[3];
         angles = new float[3];
         m_filters = new Filter[3];
         for(int i  = 0; i < 3; i++){
-            m_filters[i] = new Filter();
+            m_filters[i] = new Filter(ANGLES_BUFFER);
         }
         act = m;
     }
@@ -96,7 +95,6 @@ public class GyroDetector implements SensorEventListener {
             boolean success = SensorManager.getRotationMatrix(R, I, mGravity, mGeomagnetic);
             if (success) {
                computeOrientation(R);
-                // now how to use previous 3 values to calculate orientation
             }
         }
     }
@@ -114,23 +112,25 @@ public class GyroDetector implements SensorEventListener {
         return 0.0;
     }
 
-    class Filter{
+    static class Filter{
         private float[] lastTen;
         private int next;
-        public Filter(){
-            lastTen = new float[10];
+        private int buffer;
+        public Filter(int buffer){
+            this.buffer = buffer;
+            lastTen = new float[buffer];
             next = 0;
         }
 
         public float append(float f) {
-            lastTen[next%10] = f;
+            lastTen[next%buffer] = f;
             next = next + 1;
             float sum = 0;
             for(float current: lastTen){
                 sum += current;
             }
-            if(next >= 9){
-                return sum/(10f);
+            if(next >= buffer-1){
+                return sum/(buffer);
             }
             return sum / (float)next;
         }

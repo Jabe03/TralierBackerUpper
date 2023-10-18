@@ -23,14 +23,21 @@ public class ArrowsView extends View {
     private Paint p;
 
     /**
-     *
+     * Length of the target arrow
      */
-    private final static int targetArrowLength = 300;
-    private final static double trueArrowRatio = 0.65;
-    private final static double steeringAngleRange = Math.toRadians(21);
-    private final static double arrowTipRatio = 0.2;
-    private final static double arrowTipAngle = (5.0/6.0) * Math.PI;
-    private static final double inflationFactor = 2;
+    private final static int TARGET_ARROW_LENGTH = 300;
+    /**
+     * Length of the true arrow relative to the target arrow
+     */
+    private final static double TRUE_ARROW_RATIO = 0.65;
+
+    /**
+     * The actual range that the arrow view represents (+/- steeringAngleRange)
+     */
+    private final static double STEERING_ANGLE_RANGE = Math.toRadians(21);
+    private final static double ARROW_TIP_RATIO = 0.2;
+    private final static double ARROW_TIP_ANGLE = (5.0/6.0) * Math.PI;
+    private static final double INFLATION_FACTOR = 2;
     private boolean continuouslyRotating;
     private double trueArrowAngle;
     private float[] trueArrow;
@@ -84,15 +91,13 @@ public class ArrowsView extends View {
     private void init(){ /* this function is automatically called when the ArrowsView object is first created */
         p = new Paint(Paint.ANTI_ALIAS_FLAG); /* creates new paintbrush object called p with anti alias flag set to true which allows for
         smooth rendering of the edges of lines and shapes */
-        p.setStrokeWidth(10);
         continuouslyRotating = false;
-        //p.setColor(Color.GREEN);
         trueArrowAngle = 0;
         targetArrowAngle = 0;
-        targetArrow = new float[]{0,targetArrowLength};
-        trueArrow = new float[]{0,(float)(targetArrowLength*trueArrowRatio)};
+        targetArrow = new float[]{0, TARGET_ARROW_LENGTH};
+        trueArrow = new float[]{0,(float)(TARGET_ARROW_LENGTH * TRUE_ARROW_RATIO)};
         setTargetArrowAngle(Math.PI *0.25);
-        setTrueArrowAngle(-Math.PI * 0.25);
+
 
     }
 
@@ -104,13 +109,13 @@ public class ArrowsView extends View {
     }
 
     private double getBoundedArrowAngle(double theta){
-        double normalizedTheta = ((theta*inflationFactor + Math.PI) % (2*Math.PI)) - Math.PI;
+        double normalizedTheta = ((theta* INFLATION_FACTOR + Math.PI) % (2*Math.PI)) - Math.PI;
 
-        if(normalizedTheta > steeringAngleRange*inflationFactor){
-            return (steeringAngleRange*inflationFactor);
+        if(normalizedTheta > STEERING_ANGLE_RANGE * INFLATION_FACTOR){
+            return (STEERING_ANGLE_RANGE * INFLATION_FACTOR);
         }
-        else if(normalizedTheta < -steeringAngleRange*inflationFactor){
-            return -steeringAngleRange*inflationFactor;
+        else if(normalizedTheta < -STEERING_ANGLE_RANGE * INFLATION_FACTOR){
+            return -STEERING_ANGLE_RANGE * INFLATION_FACTOR;
         }
         return normalizedTheta;
 
@@ -120,15 +125,15 @@ public class ArrowsView extends View {
     public void setTrueArrowAngle(double theta){
         trueArrowAngle = getBoundedArrowAngle(theta);
 
-        trueArrow[0] = (float)(Math.cos(trueArrowAngle + Math.PI/((float)2)) * trueArrowRatio* targetArrowLength);
-        trueArrow[1] = (float)(Math.sin(trueArrowAngle + Math.PI/((float)2)) * trueArrowRatio*targetArrowLength);
+        trueArrow[0] = (float)(Math.cos(trueArrowAngle + Math.PI/((float)2)) * TRUE_ARROW_RATIO * TARGET_ARROW_LENGTH);
+        trueArrow[1] = (float)(Math.sin(trueArrowAngle + Math.PI/((float)2)) * TRUE_ARROW_RATIO * TARGET_ARROW_LENGTH);
         invalidate();
     }
 
     public void setTargetArrowAngle(double theta){
         targetArrowAngle = getBoundedArrowAngle(theta);
-        targetArrow[0] = (float)(Math.cos(targetArrowAngle + Math.PI/((float)2)) * targetArrowLength);
-        targetArrow[1] = (float)(Math.sin(targetArrowAngle + Math.PI/((float)2)) * targetArrowLength);
+        targetArrow[0] = (float)(Math.cos(targetArrowAngle + Math.PI/((float)2)) * TARGET_ARROW_LENGTH);
+        targetArrow[1] = (float)(Math.sin(targetArrowAngle + Math.PI/((float)2)) * TARGET_ARROW_LENGTH);
         Log.d("Arrow math", "New points for arrow after angle " + theta + ": " + Arrays.toString(targetArrow));
         invalidate();
     }
@@ -174,15 +179,15 @@ public class ArrowsView extends View {
         c.drawLine(startX, startY, endX, endY, p);
         p.setStrokeWidth(5);
         float[] arrowTip = new float[2];
-        double cosRatio = Math.cos( arrowTipAngle);
-        double sinRatio = Math.sin(arrowTipAngle);
-        arrowTip[0] = (float)((arrow[0]*cosRatio - arrow[1]*sinRatio)*arrowTipRatio);
-        arrowTip[1] = (float)((arrow[0]*sinRatio + arrow[1]*cosRatio)*arrowTipRatio);
+        double cosRatio = Math.cos(ARROW_TIP_ANGLE);
+        double sinRatio = Math.sin(ARROW_TIP_ANGLE);
+        arrowTip[0] = (float)((arrow[0]*cosRatio - arrow[1]*sinRatio)* ARROW_TIP_RATIO);
+        arrowTip[1] = (float)((arrow[0]*sinRatio + arrow[1]*cosRatio)* ARROW_TIP_RATIO);
         c.drawLine(endX, endY, endX + arrowTip[0], endY - arrowTip[1], p);
-        cosRatio = Math.cos( -arrowTipAngle);
-        sinRatio = Math.sin( -arrowTipAngle);
-        arrowTip[0] = (float)((arrow[0]*cosRatio - arrow[1]*sinRatio)*arrowTipRatio);
-        arrowTip[1] = (float)((arrow[0]*sinRatio + arrow[1]*cosRatio)*arrowTipRatio);
+        cosRatio = Math.cos( -ARROW_TIP_ANGLE);
+        sinRatio = Math.sin( -ARROW_TIP_ANGLE);
+        arrowTip[0] = (float)((arrow[0]*cosRatio - arrow[1]*sinRatio)* ARROW_TIP_RATIO);
+        arrowTip[1] = (float)((arrow[0]*sinRatio + arrow[1]*cosRatio)* ARROW_TIP_RATIO);
         c.drawLine(endX, endY, endX + arrowTip[0], endY - arrowTip[1], p);
     }
 }
