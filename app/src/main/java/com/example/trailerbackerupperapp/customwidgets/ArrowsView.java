@@ -60,28 +60,32 @@ public class ArrowsView extends View {
         init();
     }
     public void rotateArrowsContinuously(){
-        if(continuouslyRotating) return;
-        Thread arrowRotator = new Thread(() -> {
-            double refreshRate = 60;
-            double angleTrueVelocity = Math.PI;
-            double angleTargetVelocity = Math.PI * 0.5;
+        if(continuouslyRotating) return; /* This check ensures that only one arrow rotator thread is active at a time. */
+        Thread arrowRotator = new Thread(() -> { /* while this thread is running, it rotates both arrows at the given rates */
+            double refreshRate = 60; /* this is the rate at which the view is refreshed while the app is running */
+            double angleTrueVelocity = Math.PI; /* pi radians rotation of true arrow to occur on every cycle*/
+            double angleTargetVelocity = Math.PI * 0.5; /* half of pi radians rotation of target arrow to occur on every cycle */
             float angleTrue = 0;
             float angleTarget = 0;
             long last = System.currentTimeMillis();
             while(continuouslyRotating){
                 long now = System.currentTimeMillis();
-                if(now - last >= 1000/refreshRate){
-                    angleTrue += angleTrueVelocity/refreshRate;
-                    angleTarget += angleTargetVelocity/refreshRate;
+                if(now - last >= 1000/refreshRate){ /* 1000 milliseconds is equal to 1 second, the contained code executes every 1/60 second */
+                    angleTrue += angleTrueVelocity/refreshRate; /* pi radians rotation of true arrow every second */
+                    angleTarget += angleTargetVelocity/refreshRate; /*half of pi radians rotation of target arrow every second */
                     setTargetArrowAngle(angleTarget);
                     setTrueArrowAngle(angleTrue);
-                    invalidate();
+                    invalidate(); /* Android operates on a continuous UI rendering cycle. This cycle is responsible for rendering and updating the
+                    user interface components. In custom View components, you may want to update the appearance or content of the view dynamically.
+                    To trigger this update, you call the invalidate() method on the View. When invalidate() is called, it marks the view as
+                    invalid, indicating that it needs to be redrawn. However, the actual redraw doesn't happen immediately. Instead, it's
+                    scheduled to occur during the next rendering cycle. */
                     last = now;
                 }
             }
         });
         continuouslyRotating = true;
-        arrowRotator.start();
+        arrowRotator.start(); /* starts the arrow rotator thread defined in this function */
     }
 
     public void stopRotating(){
@@ -91,13 +95,12 @@ public class ArrowsView extends View {
     private void init(){ /* this function is automatically called when the ArrowsView object is first created */
         p = new Paint(Paint.ANTI_ALIAS_FLAG); /* creates new paintbrush object called p with anti alias flag set to true which allows for
         smooth rendering of the edges of lines and shapes */
-        continuouslyRotating = false;
+        continuouslyRotating = false; /* arrows not auto rotating right away */
         trueArrowAngle = 0;
         targetArrowAngle = 0;
-        targetArrow = new float[]{0, TARGET_ARROW_LENGTH};
-        trueArrow = new float[]{0,(float)(TARGET_ARROW_LENGTH * TRUE_ARROW_RATIO)};
-        setTargetArrowAngle(Math.PI *0.25);
-
+        targetArrow = new float[]{0, TARGET_ARROW_LENGTH};/* represents initial start and end points of target arrow relative to axises, is vertical */
+        trueArrow = new float[]{0,(float)(TARGET_ARROW_LENGTH * TRUE_ARROW_RATIO)};  /* true arrow is 65 percent the length of target arrow, also vertically oriented */
+        setTargetArrowAngle(Math.PI *0.25); /* calls function resetting orientation of target arrow using two value coords */
 
     }
 
