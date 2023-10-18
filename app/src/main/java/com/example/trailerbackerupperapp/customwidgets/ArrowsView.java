@@ -109,8 +109,10 @@ public class ArrowsView extends View {
                 if(now - last >= 1000/refreshRate){ /* 1000 milliseconds is equal to 1 second, the contained code executes every 1/60 second */
                     angleTrue += angleTrueVelocity/refreshRate; /* pi radians rotation of true arrow every second */
                     angleTarget += angleTargetVelocity/refreshRate; /*half of pi radians rotation of target arrow every second */
-                    setTargetArrowAngle(angleTarget);
-                    setTrueArrowAngle(angleTrue);
+                    setTargetArrowAngle(angleTarget);  /* sets end point coordinate of target arrow to what is required for the angle specified by
+                    angleTarget value, but before it makes some adjustments on the angleTarget value to correspond it to the bounds required on
+                    the display */
+                    setTrueArrowAngle(angleTrue); /* mirrors setTargetArrowAngle operation except for the true arrow */
                     invalidate(); /* Android operates on a continuous UI rendering cycle. This cycle is responsible for rendering and updating the
                     user interface components. In custom View components, you may want to update the appearance or content of the view dynamically.
                     To trigger this update, you call the invalidate() method on the View. When invalidate() is called, it marks the view as
@@ -140,9 +142,10 @@ public class ArrowsView extends View {
         continuouslyRotating = false; /* arrows not auto rotating right away */
         trueArrowAngle = 0;
         targetArrowAngle = 0;
-        targetArrow = new float[]{0, TARGET_ARROW_LENGTH};/* represents initial start and end points of target arrow relative to axises, is vertical */
-        trueArrow = new float[]{0,(float)(TARGET_ARROW_LENGTH * TRUE_ARROW_RATIO)};  /* true arrow is 65 percent the length of target arrow, also vertically oriented */
-        //setTargetArrowAngle(Math.PI *0.25); /* calls function resetting orientation of target arrow using two value coords */
+        targetArrow = new float[]{0, TARGET_ARROW_LENGTH}; /* represents initial start and end points of target arrow relative to axises,
+        is vertical */
+        trueArrow = new float[]{0,(float)(TARGET_ARROW_LENGTH * TRUE_ARROW_RATIO)};  /* true arrow is 65 percent the length of target arrow,
+        also vertically oriented */
 
     }
 
@@ -162,14 +165,18 @@ public class ArrowsView extends View {
 
     }
     public void setTrueArrowAngle(double theta){
-        trueArrowAngle = getBoundedArrowAngle(theta);
+        trueArrowAngle = getBoundedArrowAngle(theta); /* makes sure that the true arrow angle is within the specified bounds,
+        otherwise sets the angle to the nearest bounding angle */
 
-        trueArrow[0] = (float)(Math.cos(trueArrowAngle + Math.PI/((float)2)) * TRUE_ARROW_RATIO * TARGET_ARROW_LENGTH);
-        trueArrow[1] = (float)(Math.sin(trueArrowAngle + Math.PI/((float)2)) * TRUE_ARROW_RATIO * TARGET_ARROW_LENGTH);
-        invalidate();
+        trueArrow[0] = (float)(Math.cos(trueArrowAngle + Math.PI/((float)2)) * TRUE_ARROW_RATIO * TARGET_ARROW_LENGTH); /* given the bound
+        corrected true arrow angle, sets the x coordinate judged by distance to the vertical halfline axis */
+        trueArrow[1] = (float)(Math.sin(trueArrowAngle + Math.PI/((float)2)) * TRUE_ARROW_RATIO * TARGET_ARROW_LENGTH); /*given the bound corrected
+        true arrow angle, sets the y coordinate judged by distance from the horizontal top boundary of the view */
+        invalidate(); /* marks view as invalid, schedules redraw on next rendering cycle */
     }
 
-    public void setTargetArrowAngle(double theta){
+    public void setTargetArrowAngle(double theta){  /* this function mirrors the setTrueArrowAngle function except does those operations
+    with the target arrow */
         targetArrowAngle = getBoundedArrowAngle(theta);
         targetArrow[0] = (float)(Math.cos(targetArrowAngle + Math.PI/((float)2)) * TARGET_ARROW_LENGTH);
         targetArrow[1] = (float)(Math.sin(targetArrowAngle + Math.PI/((float)2)) * TARGET_ARROW_LENGTH);
@@ -210,28 +217,32 @@ public class ArrowsView extends View {
     private void drawArrow(float[] arrow, Canvas c, Paint p){
         p.setStrokeWidth(10);
         //Log.d("Drawing arrow", "Arrow coords: " + Arrays.toString(arrow));
-        float startX = getWidth()/((float)2);
-        float startY = getHeight();
-        float endX = startX + arrow[0];
-        float endY = startY - arrow[1];
+        float startX = getWidth()/((float)2); /* indicates that the x value of the starting point of the arrow to be drawn corresponds to
+         the east end of the view*/
+        float startY = getHeight(); /* indicates that the y value of the starting point of the arrow to be drawn corresponds to the south end
+         the view */
+        float endX = startX + arrow[0]; /* sets the x value of the end point of the arrow to be drawn is absolute value of arrow[0] pixels
+        shifted  west from the east end of the view */
+        float endY = startY - arrow[1]; /* sets the y value of the end point of the arrow to be drawn as being arrow[1] pixels shifted north from
+        the south end of the view */
         /*Log.d(
                 "Drawing arrow" ,
                 "On-screen coords" + "[" + startX + ", " + startY + ", " + endX + ", " + endY + "]"
         );*/
 
         //c.drawLine(0,0, arrow[0], arrow[1], p);
-        c.drawLine(startX, startY, endX, endY, p);
-        p.setStrokeWidth(5);
+        c.drawLine(startX, startY, endX, endY, p); /* draws the arrow shaft */
+        p.setStrokeWidth(5); /* arrow tip to be half the width of 10px arrow shaft width */
         float[] arrowTip = new float[2];
         double cosRatio = Math.cos(Math.PI - ARROW_TIP_ANGLE);
         double sinRatio = Math.sin(Math.PI - ARROW_TIP_ANGLE);
         arrowTip[0] = (float)((arrow[0]*cosRatio - arrow[1]*sinRatio)* ARROW_TIP_RATIO);
         arrowTip[1] = (float)((arrow[0]*sinRatio + arrow[1]*cosRatio)* ARROW_TIP_RATIO);
-        c.drawLine(endX, endY, endX + arrowTip[0], endY - arrowTip[1], p);
+        c.drawLine(endX, endY, endX + arrowTip[0], endY - arrowTip[1], p); /* one side of arrowhead drawn, not sure which */
         cosRatio = Math.cos( Math.PI + ARROW_TIP_ANGLE);
         sinRatio = Math.sin( Math.PI + ARROW_TIP_ANGLE);
         arrowTip[0] = (float)((arrow[0]*cosRatio - arrow[1]*sinRatio)* ARROW_TIP_RATIO);
         arrowTip[1] = (float)((arrow[0]*sinRatio + arrow[1]*cosRatio)* ARROW_TIP_RATIO);
-        c.drawLine(endX, endY, endX + arrowTip[0], endY - arrowTip[1], p);
+        c.drawLine(endX, endY, endX + arrowTip[0], endY - arrowTip[1], p); /* other side of the arrowhead is drawn */
     }
 }
