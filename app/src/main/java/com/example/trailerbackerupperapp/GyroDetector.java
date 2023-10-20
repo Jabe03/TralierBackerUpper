@@ -62,6 +62,7 @@ public class GyroDetector implements SensorEventListener {
         angles[0] = m_filters[0].append(orientationData[0]);
         angles[1] = m_filters[1].append(orientationData[1]);
         angles[2] = m_filters[2].append(orientationData[2]);
+        
         act.update_orientation();
 
             /*
@@ -69,15 +70,7 @@ public class GyroDetector implements SensorEventListener {
             float pitch =(float)Math.toDegrees(m_orientation[1]);
             float roll = (float)Math.toDegrees(m_orientation[2]);
             */
-
-            /* append returns an average of the last 10 values */
-
-
-
-        //}
     }
-
-
     @Override
     public void onSensorChanged(SensorEvent event) {
         //Log.d("Gyroscope", "Sensor changed! Event type: " + event.sensor.getStringType());
@@ -112,28 +105,6 @@ public class GyroDetector implements SensorEventListener {
         return 0.0;
     }
 
-    static class Filter{
-        private float[] lastTen;
-        private int next;
-        private int buffer;
-        public Filter(int buffer){
-            this.buffer = buffer;
-            lastTen = new float[buffer];
-            next = 0;
-        }
 
-        public float append(float f) {
-            lastTen[next%buffer] = f;
-            next = next + 1;
-            float sum = 0;
-            for(float current: lastTen){
-                sum += current;
-            }
-            if(next >= buffer-1){
-                return sum/(buffer);
-            }
-            return sum / (float)next;
-        }
-    }
 
 }

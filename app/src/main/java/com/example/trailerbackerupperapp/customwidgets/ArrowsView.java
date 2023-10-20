@@ -146,7 +146,16 @@ public class ArrowsView extends View {
 
     }
 
-
+    /**
+     * converts the theta, in radians, from the interval (-inf,inf) to [pi, -pi), then bounds it
+     * by STEERING_ANGLE_RANGE: If it is less than -STEERING_ANGLE_RANGE then it sets it to
+     * -STEERING_ANGLE_RANGE. If it is greater than STEERING_ANGLE_RANGE then it sets it to
+     * STEERING_ANGLE_RANGE. The final value is then multiplied by the INFLATION_FACTOR to get
+     * the displayed angle of the arrow.
+     *
+     * @param theta angle, in radians
+     * @return the bounded angle, in radians
+     */
     private double getBoundedArrowAngle(double theta){
         double normalizedTheta = ((theta* INFLATION_FACTOR + Math.PI) % (2*Math.PI)) - Math.PI;
 
@@ -161,6 +170,10 @@ public class ArrowsView extends View {
 
 
     }
+    /**
+     * Computes the coordinates of the true arrow given the new angle of the arrow
+     * @param theta the new angle, in radians
+     */
     public void setTrueArrowAngle(double theta){
         trueArrowAngle = getBoundedArrowAngle(theta);
 
@@ -169,6 +182,10 @@ public class ArrowsView extends View {
         invalidate();
     }
 
+    /**
+     * Computes the coordinates of the target arrow given the new angle of the arrow
+     * @param theta the new angle, in radians
+     */
     public void setTargetArrowAngle(double theta){
         targetArrowAngle = getBoundedArrowAngle(theta);
         targetArrow[0] = (float)(Math.cos(targetArrowAngle + Math.PI/((float)2)) * TARGET_ARROW_LENGTH);
@@ -178,10 +195,10 @@ public class ArrowsView extends View {
     }
 
 
-
-
-
-
+    /**
+     * Draws this component consisting of two arrows: true and target.
+     * @param c Canvas to be drawn on
+     */
     @Override
     public void onDraw(Canvas c){
         super.onDraw(c);
@@ -205,7 +222,7 @@ public class ArrowsView extends View {
      * This draws an arrow on the screen
      * @param arrow array that contains the coordinates of the tip of the arrow
      * @param c Canvas to draw the arrow on
-     * @param p
+     * @param p paint object that draws the arrow. (NOTE: The arrow will be drawn with the current color of the arrow)
      */
     private void drawArrow(float[] arrow, Canvas c, Paint p){
         p.setStrokeWidth(10);
