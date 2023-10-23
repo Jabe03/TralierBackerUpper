@@ -18,7 +18,9 @@ import com.example.trailerbackerupperapp.customwidgets.ArrowsView;
 import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
-    private ArrowsView arrowsView;
+    private ArrowsView arrowsView; /* a view object is created on the window, showing the navigation guidance arrows,
+     the name of the object is the name of the class wherein it is defined and also the name of the element as referenced
+     in assisted_mode.xml */
     private boolean debug = false;
     private GyroDetector gyro;
     ArrayList<TextView> debugViews;
@@ -27,7 +29,7 @@ public class MainActivity extends AppCompatActivity {
 
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.assisted_mode);
+        setContentView(R.layout.assisted_mode); /* this is the mode with the guidance arrows aka ArrowsView */
         Thread clientmaker = new Thread(new Runnable(){
             public void run(){
                 new Client("172.17.61.115", 5000);
@@ -38,7 +40,8 @@ public class MainActivity extends AppCompatActivity {
         clientmaker.start();
 
         initializeGyroscope();
-        arrowsView = findViewById(R.id.ArrowsView);
+        arrowsView = findViewById(R.id.ArrowsView); /* the ArrowView element being assigned here is an object that seems to be
+        instantiated in assissted_mode.xml using the ArrowsView.java class */
         
 
     }
@@ -48,7 +51,7 @@ public class MainActivity extends AppCompatActivity {
 
     public void initializeGyroscope(){
 
-        debugViews =new ArrayList<>();
+        debugViews =new ArrayList<>(); /* these are to be the textboxes on the display which display gyroscope information */
 
         debugViews.add(findViewById(R.id.roll));
         debugViews.add(findViewById(R.id.pitch));

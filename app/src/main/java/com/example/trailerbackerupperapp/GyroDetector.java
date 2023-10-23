@@ -22,12 +22,14 @@ public class GyroDetector implements SensorEventListener {
 
     private Filter[] m_filters;
 
-    private MainActivity act;
+    private MainActivity act; /* variable set to the m variable passed to the constructor from the onCreate method in the MainActivity
+    class */
 
     private float[] mGravity;
     private float[] mGeomagnetic;
 
-    public GyroDetector(MainActivity m) {
+    public GyroDetector(MainActivity m) { /* this constructor is called in the onCreate function of the MainActivity class whose object
+    here is represented by variable m */
         m_rotationMatrix = new float[3];
         m_orientation = new float[3];
         angles = new float[3];
