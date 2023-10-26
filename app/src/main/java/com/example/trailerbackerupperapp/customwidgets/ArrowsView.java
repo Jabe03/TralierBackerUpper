@@ -21,7 +21,7 @@ import java.util.Arrays;
  */
 public class ArrowsView extends View {
     /**
-     * Paint object used to darw the arrows in the screen
+     * Paint object used to draw the arrows in the screen
      */
     private Paint p;
 
@@ -62,7 +62,7 @@ public class ArrowsView extends View {
     private double trueArrowAngle;
 
     /**
-     * Unit vector representing the position of the trueArrow
+     * Vector representing the position of the trueArrow
      */
     private float[] trueArrow;
 
@@ -72,7 +72,7 @@ public class ArrowsView extends View {
     private double targetArrowAngle;
 
     /**
-     * Unit vector representing the position of the targetArrow
+     *Vector representing the position of the targetArrow
      */
     private float[] targetArrow;
 
