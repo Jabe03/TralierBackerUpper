@@ -1,7 +1,9 @@
 package com.example.trailerbackerupperapp;
 
-import static java.lang.String.format;
-
+import android.annotation.SuppressLint;
+import android.content.Context;
+import android.content.ContextWrapper;
+import android.hardware.Sensor;
 import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.util.Log;
@@ -9,12 +11,21 @@ import android.view.KeyEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
-import android.hardware.Sensor;
+
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.trailerbackerupper.R;
 import com.example.trailerbackerupperapp.customwidgets.ArrowsView;
+import com.example.trailerbackerupperapp.customwidgets.TrailerCameraView;
 
+
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
@@ -30,15 +41,9 @@ public class MainActivity extends AppCompatActivity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.assisted_mode); /* this is the mode with the guidance arrows aka ArrowsView */
-        Thread clientmaker = new Thread(new Runnable(){
-            public void run(){
-                new Client("172.17.61.115", 5000);
-            }
-
-
-        });
+        Thread clientmaker = new Thread(() -> new Client("172.17.61.115", 5000));
         clientmaker.start();
-
+        setTestImage();
         initializeGyroscope();
         arrowsView = findViewById(R.id.ArrowsView); /* the ArrowView element being assigned here is an object that seems to be
         instantiated in assissted_mode.xml using the ArrowsView.java class */
@@ -47,6 +52,24 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
+    private void setTestImage() {
+        TrailerCameraView t = findViewById(R.id.TrailerCameraView);
+        try {
+            ContextWrapper cw = new ContextWrapper(this);
+
+            //path to /data/data/yourapp/app_data/dirName
+            File directory = cw.getDir("testTrailerImage.jpg", Context.MODE_PRIVATE);
+            FileInputStream fis = new FileInputStream(directory);
+            char[] imageBytes = new char[300*1000];
+            int b;
+            for(int i = 0; (b = fis.read()) != -1; i++){
+                imageBytes[i] = (char)b;
+            }
+            t.setCurrentImage(imageBytes);
+        }catch(IOException e){
+            Log.e("Image not found", "could not find image: sampledata/testTrailerImage.jpg");
+        }
+    }
 
 
     public void initializeGyroscope(){

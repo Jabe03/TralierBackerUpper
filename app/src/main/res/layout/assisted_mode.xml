@@ -28,7 +28,7 @@
         app:layout_constraintTop_toTopOf="parent"
         tools:srcCompat="@tools:sample/avatars" />
 
-    <ImageView
+    <com.example.trailerbackerupperapp.customwidgets.TrailerCameraView
         android:id="@+id/TrailerCameraView"
         android:layout_width="303dp"
         android:layout_height="164dp"
