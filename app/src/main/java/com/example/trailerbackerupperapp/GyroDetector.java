@@ -11,7 +11,8 @@ import com.example.trailerbackerupper.R;
 
 import java.util.Arrays;
 
-public class GyroDetector implements SensorEventListener {
+public class GyroDetector implements SensorEventListener { /* The GyroDetector class is declared, which implements the
+SensorEventListener interface. This means that instances of this class can listen to and respond to sensor events. */
 
     private static final int ANGLES_BUFFER = 2;
 
@@ -22,8 +23,8 @@ public class GyroDetector implements SensorEventListener {
 
     private Filter[] m_filters;
 
-    private MainActivity act; /* variable set to the m variable passed to the constructor from the onCreate method in the MainActivity
-    class */
+    private MainActivity act; /* this variable is set to the m variable that is passed to the constructor from the onCreate method in the
+    MainActivity class */
 
     private float[] mGravity;
     private float[] mGeomagnetic;
@@ -60,12 +61,19 @@ public class GyroDetector implements SensorEventListener {
     private void computeOrientation(float[] R) {
         //Log.d("Backend", "Computing orientation...");
         float[] orientationData = new float[3];
-        SensorManager.getOrientation(R, orientationData);
-        angles[0] = m_filters[0].append(orientationData[0]);
-        angles[1] = m_filters[1].append(orientationData[1]);
-        angles[2] = m_filters[2].append(orientationData[2]);
+        SensorManager.getOrientation(R, orientationData); /* getOrientation is a method provided by SensorManager for calculating the
+        orientation of the device in space. It takes two main parameters:
+        R: This parameter is an array of float values representing a 3x3 rotation matrix. The rotation matrix describes the
+        orientation of the device and is typically obtained from sensor data, such as gyroscope and accelerometer readings.
+        orientationData: This parameter is an array of float values that will be populated with the resulting orientation angles.
+        It's an output parameter where the calculated orientation data will be stored. */
+
+        angles[0] = m_filters[0].append(orientationData[0]); /* yaw angle */
+        angles[1] = m_filters[1].append(orientationData[1]); /* pitch angle */
+        angles[2] = m_filters[2].append(orientationData[2]); /* roll angle */
         
-        act.update_orientation();
+        act.update_orientation(); /* act is a MainActivity object, and this line is calling one of its methods which
+        sets the debugViews textboxes and the arrowsView display according to the values added to the angles array */
 
             /*
             float yaw = (float)Math.toDegrees(m_orientation[0]) ;
@@ -87,9 +95,10 @@ public class GyroDetector implements SensorEventListener {
         if (mGravity != null && mGeomagnetic != null) {
             float[] R = new float[9];
             float[] I = new float[9];
-            boolean success = SensorManager.getRotationMatrix(R, I, mGravity, mGeomagnetic);
+            boolean success = SensorManager.getRotationMatrix(R, I, mGravity, mGeomagnetic); /*
+                This line calculates the rotation matrix R and inclination matrix I based on the gravity and magnetic field sensor data. */
             if (success) {
-               computeOrientation(R);
+               computeOrientation(R); /* sets the angles array to the yaw, pitch, and roll angles based on the data in R */
             }
         }
     }
