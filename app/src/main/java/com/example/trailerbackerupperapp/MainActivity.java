@@ -41,7 +41,7 @@ public class MainActivity extends AppCompatActivity {
 
         initializeGyroscope();
         arrowsView = findViewById(R.id.ArrowsView); /* the ArrowView element being assigned here is an object that seems to be
-        instantiated in assissted_mode.xml using the ArrowsView.java class */
+        instantiated in assisted_mode.xml using the ArrowsView.java class */
         
 
     }
@@ -117,7 +117,7 @@ public class MainActivity extends AppCompatActivity {
         debugViews.get(1).setText(String.format("pitch x:%.2f ", pitch));
         debugViews.get(2).setText(String.format("roll y: %.2f ", roll));
 
-        arrowsView.setTrueArrowAngle(pitch/100);
+        arrowsView.setTrueArrowAngle(pitch/100); /* true arrow represents the current angle of the vehicle */
     }
 
 
