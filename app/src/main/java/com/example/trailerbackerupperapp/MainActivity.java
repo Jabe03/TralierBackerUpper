@@ -17,6 +17,8 @@ import com.example.trailerbackerupperapp.customwidgets.ArrowsView;
 
 import java.util.ArrayList;
 
+import Online.Client;
+
 public class MainActivity extends AppCompatActivity {
     private ArrowsView arrowsView; /* a view object is created on the window, showing the navigation guidance arrows,
      the name of the object is the name of the class wherein it is defined and also the name of the element as referenced
