@@ -116,7 +116,7 @@ public abstract class OnlineObject {
      * This method is called during setup, near the end. It tells the handler to start a thread that
      * begins listening for data coming in from its client. After receiving a packet, it sends it to its server.
      */
-    public void startListening(){
+    protected void startListening(){
         if(isListening) {
             //Printer.errorPrintIfVerbose("OnlineObject tried to run the same instance twice");
             return;
@@ -227,7 +227,9 @@ public abstract class OnlineObject {
 
         }
     }
-
+    public boolean isRunning(){
+        return isListening;
+    }
 
 
     protected void onJoin(){

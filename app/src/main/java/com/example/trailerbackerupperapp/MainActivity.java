@@ -8,6 +8,7 @@ import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.hardware.Sensor;
 import androidx.appcompat.app.AppCompatActivity;
@@ -18,6 +19,8 @@ import com.example.trailerbackerupperapp.customwidgets.ArrowsView;
 import java.util.ArrayList;
 
 import Online.Client;
+import Online.DefaultOnlineCommands;
+import Online.Packet;
 
 public class MainActivity extends AppCompatActivity {
     private ArrowsView arrowsView; /* a view object is created on the window, showing the navigation guidance arrows,
@@ -25,30 +28,83 @@ public class MainActivity extends AppCompatActivity {
      in assisted_mode.xml */
     private boolean debug = false;
     private GyroDetector gyro;
+    private ImageView connectionDot;
     ArrayList<TextView> debugViews;
 
+    Client me;
     private Button gasButton;
 
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.assisted_mode); /* this is the mode with the guidance arrows aka ArrowsView */
+
+
+        initializeGyroscope();
+        arrowsView = findViewById(R.id.ArrowsView); /* the ArrowView element being assigned here is an object that seems to be
+        instantiated in assisted_mode.xml using the ArrowsView.java class */
+        connectionDot = findViewById(R.id.connection_indicator);
+        setConnectionIcon(false);
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+        me = new Client("192.168.1.102", 1102);
+        //172.17.50.27
+        attemptToConnectClient();
+
+
+
+    }
+
+    public void attemptToConnectClient (){
         Thread clientmaker = new Thread(new Runnable(){
             public void run(){
-                new Client("172.17.61.115", 5000);
+                me.attemptConnection();
+                me.startProcessingPackets();
+
+                /*me.sendMessage(new Packet(
+                        DefaultOnlineCommands.SIMPLE_TEXT,
+                        "Sup guy",
+                        me.getID()
+                ));*/
+                setConnectionIcon(true);
+                //Log.d("Starting stream threads", "yay");
+                startStreamThreads();
             }
 
 
         });
         clientmaker.start();
-
-        initializeGyroscope();
-        arrowsView = findViewById(R.id.ArrowsView); /* the ArrowView element being assigned here is an object that seems to be
-        instantiated in assisted_mode.xml using the ArrowsView.java class */
-        
-
     }
+    public void setConnectionIcon(boolean connected){
+        runOnUiThread(()-> {
+            if (connected) {
+                connectionDot.setImageResource(R.drawable.connected_icon);
+            } else {
+                connectionDot.setImageResource(R.drawable.disconnected_icon);
+            }
+        });
+    }
+    private void startStreamThreads(){
+        Thread sender = new Thread(()->{
+            double sendRate = 1; /* this is the rate at which the view is refreshed while the app is running */
+            long last = System.currentTimeMillis();
+            while(me.isRunning()){
+                long now = System.currentTimeMillis();
+                if(now - last >= 1000/sendRate){ /* 1000 milliseconds is equal to 1 second, the contained code executes every 1/60 second */
+                    double reading = Math.toDegrees(arrowsView.getSteeringAngle());
+                    me.sendGyroReading(reading);
+                    last = now;
+                }
+            }
+            setConnectionIcon(false);
+            attemptToConnectClient();
+        });
 
 
+        sender.start();
+    }
 
 
     public void initializeGyroscope(){
@@ -112,14 +168,18 @@ public class MainActivity extends AppCompatActivity {
         //Log.d("Updating UI", "Updating orientation");
         float[] values = gyro.getPhoneRotation(); /* gyro is the instance of the GyroDetector class, which has a getPhoneRotation method
         which returns the angles array containing the latest yaw, pitch, and roll angles from the sensor output */
-        double yaw = values[0] *(360/(2* Math.PI)); /* left or right turn */
-        double pitch = values[1]  *(360/(2* Math.PI)); /* forward or backward tilt */
-        double roll = values[2] *(360/(2* Math.PI)); /* side to side tilt */
-        debugViews.get(0).setText(String.format("yaw z: %.2f ", yaw));
-        debugViews.get(1).setText(String.format("pitch x:%.2f ", pitch));
-        debugViews.get(2).setText(String.format("roll y: %.2f ", roll));
+        //double yaw = values[0] *(360/(2* Math.PI)); /* left or right turn */
+        double pitch = values[1] * (360 / (2 * Math.PI)); /* forward or backward tilt */
+        //double roll = values[2] *(360/(2* Math.PI)); /* side to side tilt */
 
+        if(debug) {
+            //debugViews.get(0).setText(String.format("yaw z: %.2f ", yaw));
+            debugViews.get(/*1*/0).setText(String.format("pitch x:%.2f ", pitch));
+            //debugViews.get(2).setText(String.format("roll y: %.2f ", roll));
+        }
         arrowsView.setTrueArrowAngle(pitch/100); /* true arrow represents the current angle of the vehicle */
+
+
     }
 
 

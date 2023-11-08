@@ -41,6 +41,17 @@ public class DefaultOnlineCommands {
      */
     public static final String ASSIGN = "ass;";
 
+    public static final String THROTTLE = "thr;";
+
+    public static final String STEERING_ANGLE = "sa;";
+
+    public static final String PICTURE = "pic;";
+
+    public static final String GYRO_READING = "gyr;";
+
+    public static final String INFO = "inf;";
+    public static final String CONTROL_SIGNAL = "cnt;";
+
     /**
      * converts a UUID to a IDIdentifier, which is an UUID in the form of a command identifier
      * @param id UUID to be converted

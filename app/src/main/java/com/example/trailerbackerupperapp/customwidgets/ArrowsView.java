@@ -263,4 +263,8 @@ public class ArrowsView extends View {
         arrowTip[1] = (float)((arrow[0]*sinRatio + arrow[1]*cosRatio)* ARROW_TIP_RATIO);
         c.drawLine(endX, endY, endX + arrowTip[0], endY - arrowTip[1], p); /* right side of the arrowhead is drawn */
     }
+
+    public double getSteeringAngle(){
+        return trueArrowAngle/INFLATION_FACTOR;
+    }
 }

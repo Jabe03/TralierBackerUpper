@@ -1,5 +1,7 @@
 package Online;
 
+import android.util.Log;
+
 import java.io.IOException;
 import java.net.Socket;
 import java.util.UUID;
@@ -10,6 +12,9 @@ import java.util.UUID;
  */
 public class Client extends OnlineObject {
 
+    String address;
+    int port;
+
 
     /**
      * Creates a client object that connects to a server with the specified port and address.
@@ -19,7 +24,18 @@ public class Client extends OnlineObject {
     public Client(String address, int port){
         super();
         setPacketProcessor();
-        establishConnection(address, port);
+        this.address = address;
+        this.port = port;
+
+    }
+
+    public boolean attemptConnection(){
+        try {
+            establishConnection(address, port);
+            return true;
+        } catch (Exception e){
+            return false;
+        }
     }
 
     /**
@@ -51,6 +67,24 @@ public class Client extends OnlineObject {
         }
 
         initializeSocket(s);
+    }
+
+    public void sendGyroReading(double reading){
+        if(isRunning()) {
+            Packet p = new Packet(
+                    DefaultOnlineCommands.CONTROL_SIGNAL + DefaultOnlineCommands.GYRO_READING,
+                    reading,
+                    getID()
+            );
+            //Log.d("Sending gyroreading", "Packet constructed, sending...");
+            this.sendMessage(p);
+        }
+    }
+
+    @Override
+    public void disconnect(){
+        super.disconnect();
+
     }
 
 

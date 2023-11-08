@@ -141,4 +141,12 @@
         app:layout_constraintBottom_toBottomOf="@+id/pitch"
         app:layout_constraintStart_toEndOf="@+id/pitch"
         app:layout_constraintTop_toTopOf="@+id/pitch" />
+
+    <ImageView
+        android:id="@+id/connection_indicator"
+        android:layout_width="10dp"
+        android:layout_height="10dp"
+        app:layout_constraintStart_toStartOf="@+id/ArrowsView"
+        app:layout_constraintTop_toTopOf="@+id/ArrowsView"
+        app:srcCompat="@drawable/disconnected_icon" />
 </androidx.constraintlayout.widget.ConstraintLayout>
