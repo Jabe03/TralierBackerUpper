@@ -67,6 +67,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="16dp"
+        android:onClick="park_pressed"
         android:text="Park"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -78,6 +79,7 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="10dp"
         android:text="Reverse"
+        android:onClick="reverse_pressed"
         app:layout_constraintBottom_toBottomOf="@+id/Park"
         app:layout_constraintStart_toEndOf="@+id/Park"
         app:layout_constraintTop_toTopOf="@+id/Park"
@@ -114,34 +116,6 @@
         app:layout_constraintStart_toStartOf="@+id/AssistedModeButton"
         app:layout_constraintTop_toBottomOf="@+id/AssistedModeButton" />
 
-    <TextView
-        android:id="@+id/roll"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="TextView"
-        app:layout_constraintBottom_toBottomOf="@+id/pitch"
-        app:layout_constraintEnd_toStartOf="@+id/pitch"
-        app:layout_constraintTop_toTopOf="@+id/pitch" />
-
-    <TextView
-        android:id="@+id/pitch"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="24dp"
-        android:text="TextView"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <TextView
-        android:id="@+id/yaw"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="TextView"
-        app:layout_constraintBottom_toBottomOf="@+id/pitch"
-        app:layout_constraintStart_toEndOf="@+id/pitch"
-        app:layout_constraintTop_toTopOf="@+id/pitch" />
-
     <ImageView
         android:id="@+id/connection_indicator"
         android:layout_width="10dp"
@@ -149,4 +123,15 @@
         app:layout_constraintStart_toStartOf="@+id/ArrowsView"
         app:layout_constraintTop_toTopOf="@+id/ArrowsView"
         app:srcCompat="@drawable/disconnected_icon" />
+
+    <com.example.trailerbackerupperapp.customwidgets.DebugLayout
+        android:id="@+id/debugLayout"
+        android:layout_width="346dp"
+        android:layout_height="51dp"
+        android:layout_marginTop="16dp"
+        android:orientation="horizontal"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.54"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 </androidx.constraintlayout.widget.ConstraintLayout>

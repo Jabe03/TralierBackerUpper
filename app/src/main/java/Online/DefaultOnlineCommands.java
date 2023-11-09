@@ -47,8 +47,6 @@ public class DefaultOnlineCommands {
 
     public static final String PICTURE = "pic;";
 
-    public static final String GYRO_READING = "gyr;";
-
     public static final String INFO = "inf;";
     public static final String CONTROL_SIGNAL = "cnt;";
 

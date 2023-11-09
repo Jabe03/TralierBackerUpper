@@ -26,7 +26,6 @@ public class Client extends OnlineObject {
         setPacketProcessor();
         this.address = address;
         this.port = port;
-
     }
 
     public boolean attemptConnection(){
@@ -59,20 +58,30 @@ public class Client extends OnlineObject {
     private void establishConnection(String address, int port){
         //create a new socket that connects to the port and address
         //need to catch a couple of exceptions
-        try{
-            s = new Socket(address, port);
-        } catch(IOException e){
-            e.printStackTrace();
-            System.exit(1);
+        while (true) {
+            try {
+                System.out.println("Trying to connect");
+                s = new Socket(address, port);
+                System.out.println("Connected, initializing");
+                initializeSocket(s);
+                break;
+            } catch (IOException e){
+                try {
+                    System.out.println("Failed trying again");
+                    Thread.sleep(1000);
+                } catch (InterruptedException ex) {
+                    throw new RuntimeException(ex);
+                }
+                System.out.println("Connection refused, trying again");
+            }
         }
 
-        initializeSocket(s);
     }
 
     public void sendGyroReading(double reading){
         if(isRunning()) {
             Packet p = new Packet(
-                    DefaultOnlineCommands.CONTROL_SIGNAL + DefaultOnlineCommands.GYRO_READING,
+                    DefaultOnlineCommands.CONTROL_SIGNAL + DefaultOnlineCommands.STEERING_ANGLE,
                     reading,
                     getID()
             );
@@ -88,15 +97,15 @@ public class Client extends OnlineObject {
     }
 
 
-
-
-
-
-
-
-
-
-
-
-
+    public void sendGasReading(double gasVal) {
+        if(isRunning()){
+            Packet p = new Packet(
+                    DefaultOnlineCommands.CONTROL_SIGNAL + DefaultOnlineCommands.THROTTLE,
+                    gasVal,
+                    getID()
+            );
+            //Log.d("Sending gyroreading", "Packet constructed, sending...");
+            this.sendMessage(p);
+        }
+    }
 }

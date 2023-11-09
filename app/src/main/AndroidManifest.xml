@@ -17,7 +17,8 @@
         <activity
             android:name="com.example.trailerbackerupperapp.MainActivity"
             android:screenOrientation="landscape"
-            android:exported="true">
+            android:exported="true"
+            android:keepScreenOn="true">
 
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
