@@ -20,20 +20,22 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.example.trailerbackerupper.R;
 import com.example.trailerbackerupperapp.customwidgets.ArrowsView;
 import com.example.trailerbackerupperapp.customwidgets.DebugLayout;
+import com.example.trailerbackerupperapp.customwidgets.Debuggable;
 
 import java.util.ArrayList;
 
 import Online.Client;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements Debuggable {
     private ArrowsView arrowsView; /* a view object is created on the window, showing the navigation guidance arrows,
      the name of the object is the name of the class wherein it is defined and also the name of the element as referenced
      in assisted_mode.xml */
-    private boolean debug;
+
     private GyroDetector gyro;
     private ImageView connectionDot;
     DebugLayout debugLayout;
 
+    double steeringAngle;
     double gasVal;
     private static final int FORWARD = 1;
     private static final int REVERSE = -1;
@@ -56,22 +58,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    public void initDebug(boolean debug){
-        debugLayout = findViewById(R.id.debugLayout); /* these are to be the textboxes on the display which display gyroscope information */
-        debugLayout.addDebugField("steeringAngle", "StrAng");
-        debugLayout.addDebugField("gasValue", "gas");
-       /* debugViews.add(findViewById(R.id.roll)); *//* Roll is the rotation of an object around its longitudinal (or "roll") axis.
-        The longitudinal axis is an imaginary line that runs from the front to the back of the object, passing through its center.
-        When an object rolls, it tilts from side to side, similar to how a ship rolls on the waves or an airplane banks during a turn. */
-        /*debugViews.add(findViewById(R.id.pitch)); /* Pitch is the rotation of an object around its lateral (or "pitch") axis.
-        The lateral axis is an imaginary line that runs from one side of the object to the other, passing through its center.
-        When an object pitches, it tilts forward or backward, causing its nose or tail to move up or down. */
-        /*debugViews.add(findViewById(R.id.yaw)); /* Yaw is the rotation of an object around its vertical (or "yaw") axis.
-        The vertical axis is an imaginary line that runs vertically through the object's center. When an object yaws,
-        it rotates around this axis, causing it to turn left or right. */
 
-        debugLayout.setDebug(debug);
-    }
 
 
 
@@ -96,7 +83,7 @@ public class MainActivity extends AppCompatActivity {
         gasButton.setOnTouchListener((v, event) -> {
             switch(event.getAction()){
                 case MotionEvent.ACTION_DOWN:
-                    gasVal = gasDir * (v.getHeight()- event.getY())/v.getHeight();
+                    gasVal = (gasDir * (((v.getHeight()- event.getY())/v.getHeight() + 1)/2f));
                     System.out.println("Gas pressed!");
                     break;
                 case MotionEvent.ACTION_UP:
@@ -146,11 +133,10 @@ public class MainActivity extends AppCompatActivity {
             while(me.isRunning()){
                 long now = System.currentTimeMillis();
                 if(now - last >= 1000/sendRate){ /* 1000 milliseconds is equal to 1 second, the contained code executes every 1/60 second */
-                    double reading = Math.toDegrees(arrowsView.getSteeringAngle());
-                    me.sendGyroReading(reading);
+                    steeringAngle = Math.toDegrees(arrowsView.getSteeringAngle());
+                    me.sendGyroReading(steeringAngle);
                     me.sendGasReading(gasVal);
-                    debugLayout.setText("gasVal", ""+ gasVal);
-                    debugLayout.setText("steeringAngle", "" + reading);
+
                     last = now;
                 }
             }
@@ -195,7 +181,7 @@ public class MainActivity extends AppCompatActivity {
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         super.onKeyDown(keyCode, event);
         if (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN){
-            debugLayout.setDebug(!debug);
+            debugLayout.toggleDebug();
             return true;
         }
         return false;
@@ -237,8 +223,21 @@ public class MainActivity extends AppCompatActivity {
         gasDir = PARKED;
     }
 
+    public void initDebug(boolean debug){
+        debugLayout = findViewById(R.id.debugLayout); /* these are to be the textboxes on the display which display gyroscope information */
+        debugLayout.setDebugger(this);
+        debugLayout.addDebugField("steeringAngle", "StrAng");
+        debugLayout.addDebugField("gasValue", "gas");
+        debugLayout.addDebugField("Devon", "Devon is");
+        debugLayout.setDebug(debug);
 
-
-
-
+    }
+    @Override
+    public void updateDebug() {
+        runOnUiThread(() ->{
+            debugLayout.setText("gasValue", gasVal);
+            debugLayout.setText("steeringAngle", Math.toDegrees(arrowsView.getSteeringAngle()));
+            debugLayout.setText("Devon", "stupid");
+        });
+        }
 }

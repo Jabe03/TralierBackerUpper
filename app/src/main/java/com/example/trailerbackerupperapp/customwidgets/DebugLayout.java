@@ -14,6 +14,9 @@ import java.util.Map;
 
 public class DebugLayout extends LinearLayout {
     Map<String, Pair<Integer,String>> tags;
+    Thread debugger;
+
+    Debuggable target;
 
     boolean debug;
     public DebugLayout(Context context) {
@@ -38,6 +41,18 @@ public class DebugLayout extends LinearLayout {
     private void init(){
         this.debug = false;
         this.tags = new HashMap<>();
+        debugger = new Thread(() ->{
+            double updateRate = 60; /* this is the rate at which the view is refreshed while the app is running */
+            long last = System.currentTimeMillis();
+            while(debug){
+                long now = System.currentTimeMillis();
+                if(now - last >= 1000/updateRate){ /* 1000 milliseconds is equal to 1 second, the contained code executes every 1/60 second */
+                    if(target  != null)
+                        target.updateDebug();
+                    last = now;
+                }
+            }
+        });
 
     }
     public void addDebugField(String tag, String prefix){
@@ -53,15 +68,22 @@ public class DebugLayout extends LinearLayout {
     public void setText(String tag, String value){
         Pair<Integer,String> indexAndPrefix= tags.get(tag);
         if(indexAndPrefix != null){
-            ((TextView)this.getChildAt(indexAndPrefix.first)).setText(indexAndPrefix.second + ": " + value+ " ");
+            TextView t =  ((TextView)this.getChildAt(indexAndPrefix.first));
+            System.out.println(indexAndPrefix.first + ", " + t + indexAndPrefix.second + ": " + value+ " ");
+            t.setText(indexAndPrefix.second + ": " + value+ " ");
         }
 
+    }
+
+    public void setText(String tag, double value){
+        setText(tag, String.format("%.3f", value));
     }
 
     public void setDebug(boolean debug){
         this.debug = debug;
         if(this.debug){
             this.setVisibility(VISIBLE);
+            debugger.start();
             return;
         }
         this.setVisibility(GONE);
@@ -69,6 +91,11 @@ public class DebugLayout extends LinearLayout {
 
     public void toggleDebug(){
         setDebug(!debug);
+    }
+
+    public void setDebugger(Debuggable d){
+        target = d;
+
     }
 }
 
