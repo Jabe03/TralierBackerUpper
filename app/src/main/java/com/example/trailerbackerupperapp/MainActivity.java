@@ -81,20 +81,20 @@ public class MainActivity extends AppCompatActivity implements Debuggable {
         gasVal = 0;
         gasButton = findViewById(R.id.GasButton);
         gasButton.setOnTouchListener((v, event) -> {
-            switch(event.getAction()){
+            switch (event.getAction()) {
                 case MotionEvent.ACTION_DOWN:
-                    gasVal = (gasDir * (((v.getHeight()- event.getY())/v.getHeight() + 1)/2f));
+                case MotionEvent.ACTION_MOVE:
+                    gasVal = gasDir*Filter.bound(((((v.getHeight() - event.getY()) / v.getHeight() + 0.5) / (3f/2f))), 0,1);
                     System.out.println("Gas pressed!");
                     break;
                 case MotionEvent.ACTION_UP:
                     gasVal = 0;
                     System.out.println("Gas released!");
                     break;
-                case MotionEvent.ACTION_MOVE:
-                    return false;
             }
             return true;
-        });
+        }
+        );
     }
 
     public void attemptToConnectClient (){

@@ -170,6 +170,8 @@ public abstract class OnlineObject {
         }
         if(o instanceof Packet){
             return (Packet)o;
+        } else if( o instanceof byte[]){
+
         }
         throw new NotAPacketException("OnlineObject received data that wasn't of type Packet" + o);
     }

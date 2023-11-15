@@ -41,18 +41,7 @@ public class DebugLayout extends LinearLayout {
     private void init(){
         this.debug = false;
         this.tags = new HashMap<>();
-        debugger = new Thread(() ->{
-            double updateRate = 60; /* this is the rate at which the view is refreshed while the app is running */
-            long last = System.currentTimeMillis();
-            while(debug){
-                long now = System.currentTimeMillis();
-                if(now - last >= 1000/updateRate){ /* 1000 milliseconds is equal to 1 second, the contained code executes every 1/60 second */
-                    if(target  != null)
-                        target.updateDebug();
-                    last = now;
-                }
-            }
-        });
+
 
     }
     public void addDebugField(String tag, String prefix){
@@ -83,10 +72,26 @@ public class DebugLayout extends LinearLayout {
         this.debug = debug;
         if(this.debug){
             this.setVisibility(VISIBLE);
-            debugger.start();
+            startDebugger();
             return;
         }
         this.setVisibility(GONE);
+    }
+
+    private void startDebugger(){
+        debugger = new Thread(() ->{
+            double updateRate = 60; /* this is the rate at which the view is refreshed while the app is running */
+            long last = System.currentTimeMillis();
+            while(debug){
+                long now = System.currentTimeMillis();
+                if(now - last >= 1000/updateRate){ /* 1000 milliseconds is equal to 1 second, the contained code executes every 1/60 second */
+                    if(target  != null)
+                        target.updateDebug();
+                    last = now;
+                }
+            }
+        });
+        debugger.start();
     }
 
     public void toggleDebug(){

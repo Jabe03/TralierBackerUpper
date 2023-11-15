@@ -43,11 +43,11 @@
         android:id="@+id/GasButton"
         style="@style/Widget.AppCompat.Button"
         android:layout_width="167dp"
-        android:layout_height="105dp"
+        android:layout_height="150dp"
         android:layout_marginEnd="16dp"
         android:layout_marginBottom="16dp"
-        android:text="Gas"
         android:onClick="gas_pressed"
+        android:text="Gas"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
