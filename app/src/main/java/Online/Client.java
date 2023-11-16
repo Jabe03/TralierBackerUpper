@@ -108,4 +108,16 @@ public class Client extends OnlineObject {
             this.sendMessage(p);
         }
     }
+
+    public void requestCameraChange(boolean state){
+        if(isRunning()){
+            Packet p = new Packet(
+                    DefaultOnlineCommands.DEBUG + DefaultOnlineCommands.CAMERA_MODE_CHANGE,
+                    state? 1 : 0,
+                    this.getID()
+            );
+            this.sendMessage(p);
+        }
+
+    }
 }

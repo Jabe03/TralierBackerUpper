@@ -52,18 +52,19 @@ public class MainActivity extends AppCompatActivity implements Debuggable {
     private static final int SEND_RATE = 60;
     private static final double DECAY_RATE = 1;
     private boolean breaking;
+    private boolean manualOn;
+    private boolean lastManualOn;
 
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.assisted_mode); /* this is the mode with the guidance arrows aka ArrowsView */
+        arrowsView = findViewById(R.id.ArrowsView); /* the ArrowView element being assigned here is an object that seems to be instantiated in assisted_mode.xml using the ArrowsView.java class */
+        initializeGyroscope();
         initDebug(false);
         initializeGasAndBrake();
-        initializeGyroscope();
         setupClient();
 
-        arrowsView = findViewById(R.id.ArrowsView); /* the ArrowView element being assigned here is an object that seems to be
-        instantiated in assisted_mode.xml using the ArrowsView.java class */
-    }
+       }
 
 
 
@@ -152,14 +153,18 @@ public class MainActivity extends AppCompatActivity implements Debuggable {
                 if(now - last >= 1000/SEND_RATE){ /* 1000 milliseconds is equal to 1 second, the contained code executes every 1/60 second */
 
                     steeringAngle = Math.toDegrees(arrowsView.getSteeringAngle());
-                    if(!Filter.areSimilar(steeringAngle, lastSAVal, 0.1)){
+                    if(!Filter.areSimilar(steeringAngle, lastSAVal, 0.25)){
                         me.sendGyroReading(steeringAngle);
                         lastSAVal = steeringAngle;
                     }
 
-                    if(!breaking && !Filter.areSimilar(gasVal, lastGasVal, 0.01)) {
+                    if(!breaking && !Filter.areSimilar(gasVal, lastGasVal, 0.05)) {
                         me.sendGasReading(gasVal);
                         lastGasVal = gasVal;
+                    }
+                    if(lastManualOn != manualOn) {
+                        me.requestCameraChange(manualOn);
+                        lastManualOn = manualOn;
                     }
 
                     last = now;
@@ -235,17 +240,23 @@ public class MainActivity extends AppCompatActivity implements Debuggable {
     }
 
     public void brake_pressed(View view){
-        breaking = true;
-        accel.setAll(accel.eval()*-1);
+        Thread breaker = new Thread(()-> {
+            breaking = true;
+            accel.setAll(accel.eval() * -1);
+            me.sendGasReading(accel.eval());
 
-        try {
-            Thread.sleep(1000);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
-        accel.setAll(0);
-        breaking = false;
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+
+            accel.setAll(0);
+            breaking = false;
+        });
+        breaker.start();
     }
+
 
     public void forward_pressed(View view){
         gasDir = FORWARD;
@@ -259,12 +270,18 @@ public class MainActivity extends AppCompatActivity implements Debuggable {
         gasDir = PARKED;
     }
 
+    public void manual_pressed(View view){
+        manualOn = !manualOn;
+
+
+    }
+
     public void initDebug(boolean debug){
         debugLayout = findViewById(R.id.debugLayout); /* these are to be the textboxes on the display which display gyroscope information */
         debugLayout.setDebugger(this);
         debugLayout.addDebugField("steeringAngle", "StrAng");
         debugLayout.addDebugField("gasValue", "gas");
-        debugLayout.addDebugField("accelValue", "accel");
+        debugLayout.addDebugField("cameraMode", "camera mode");
         debugLayout.addDebugField("packetsSent", "packets sent");
 
 
@@ -274,10 +291,9 @@ public class MainActivity extends AppCompatActivity implements Debuggable {
     @Override
     public void updateDebug() {
         runOnUiThread(() ->{
-            debugLayout.setText("gasValue", gasVal);
-            debugLayout.setText("steeringAngle", Math.toDegrees(arrowsView.getSteeringAngle()));
-            debugLayout.setText("Devon", "stupid");
-            debugLayout.setText("accelValue", accel.eval());
+            debugLayout.setText("gasValue", lastGasVal);
+            debugLayout.setText("steeringAngle", lastSAVal);
+            debugLayout.setText("cameraMode", "" + manualOn);
             debugLayout.setText("packetsSent", "" + me.packetsSent);
         });
         }
