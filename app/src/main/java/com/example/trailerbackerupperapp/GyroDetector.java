@@ -68,9 +68,12 @@ SensorEventListener interface. This means that instances of this class can liste
         orientationData: This parameter is an array of float values that will be populated with the resulting orientation angles.
         It's an output parameter where the calculated orientation data will be stored. */
 
-        angles[0] = m_filters[0].append(orientationData[0]); /* yaw angle */
-        angles[1] = m_filters[1].append(orientationData[1]); /* pitch angle */
-        angles[2] = m_filters[2].append(orientationData[2]); /* roll angle */
+        m_filters[0].append(orientationData[0]); /* yaw angle */
+        m_filters[1].append(orientationData[1]); /* pitch angle */
+        m_filters[2].append(orientationData[2]); /* roll angle */
+        angles[0] = m_filters[0].eval(); /* yaw angle */
+        angles[1] = m_filters[1].eval(); /* pitch angle */
+        angles[2] = m_filters[2].eval(); /* roll angle */
         
         act.update_orientation(); /* act is a MainActivity object, and this line is calling one of its methods which
         sets the debugViews textboxes and the arrowsView display according to the values added to the angles array */

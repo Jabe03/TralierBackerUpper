@@ -1,21 +1,32 @@
 package com.example.trailerbackerupperapp;
 
 public class Filter {
-    private float[] lastTen;
+    private float[] last;
     private int next;
     private int buffer;
 
     public Filter(int buffer) { /* the ANGLES_BUFFER = 2 value from GyroDetector is passed here */
         this.buffer = buffer;
-        lastTen = new float[buffer]; /* array of two floats */
+        last = new float[buffer]; /* array of two floats */
         next = 0;
     }
 
-    public float append(float f) {
-        lastTen[next % buffer] = f;
+    public void append(float f) {
+        last[next % buffer] = f;
         next = next + 1;
+    }
+
+    public void setAll(float f){
+        last = new float[buffer];
+        for(int i = 0; i < buffer; i++){
+            last[i] = f;
+        }
+
+    }
+
+    public float eval(){
         float sum = 0;
-        for (float current : lastTen) { /* first float in lastTen is f */
+        for (float current : last) { /* first float in lastTen is f */
             sum += current;
         }
         if (next >= buffer - 1) {

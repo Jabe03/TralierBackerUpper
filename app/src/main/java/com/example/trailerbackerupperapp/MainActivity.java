@@ -41,9 +41,14 @@ public class MainActivity extends AppCompatActivity implements Debuggable {
     private static final int REVERSE = -1;
     private static final int PARKED = 0;
     double gasDir;
+    volatile Filter accel;
 
     Client me;
     private Button gasButton;
+
+    private static final int SEND_RATE = 60;
+    private static final double DECAY_RATE = 1;
+    private boolean breaking;
 
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -80,6 +85,7 @@ public class MainActivity extends AppCompatActivity implements Debuggable {
         gasDir = FORWARD;
         gasVal = 0;
         gasButton = findViewById(R.id.GasButton);
+        accel = new Filter((int)(SEND_RATE*DECAY_RATE));
         gasButton.setOnTouchListener((v, event) -> {
             switch (event.getAction()) {
                 case MotionEvent.ACTION_DOWN:
@@ -93,8 +99,21 @@ public class MainActivity extends AppCompatActivity implements Debuggable {
                     break;
             }
             return true;
-        }
-        );
+        });
+
+        Thread valUpdater = new Thread(()->{
+            long last = System.currentTimeMillis();
+            while(true){
+                long now = System.currentTimeMillis();
+                if(now - last >= 1000/SEND_RATE){ /* 1000 milliseconds is equal to 1 second, the contained code executes every 1/60 second */
+                    accel.append((float)gasVal);
+                    last = now;
+                }
+            }
+
+        });
+        valUpdater.start();
+
     }
 
     public void attemptToConnectClient (){
@@ -128,14 +147,14 @@ public class MainActivity extends AppCompatActivity implements Debuggable {
     }
     private void startStreamThreads(){
         Thread sender = new Thread(()->{
-            double sendRate = 60; /* this is the rate at which the view is refreshed while the app is running */
-            long last = System.currentTimeMillis();
+           long last = System.currentTimeMillis();
             while(me.isRunning()){
                 long now = System.currentTimeMillis();
-                if(now - last >= 1000/sendRate){ /* 1000 milliseconds is equal to 1 second, the contained code executes every 1/60 second */
+                if(now - last >= 1000/SEND_RATE){ /* 1000 milliseconds is equal to 1 second, the contained code executes every 1/60 second */
                     steeringAngle = Math.toDegrees(arrowsView.getSteeringAngle());
                     me.sendGyroReading(steeringAngle);
-                    me.sendGasReading(gasVal);
+                    if(!breaking)
+                        me.sendGasReading(gasVal);
 
                     last = now;
                 }
@@ -208,7 +227,16 @@ public class MainActivity extends AppCompatActivity implements Debuggable {
     }
 
     public void brake_pressed(View view){
-        //arrowsView.stopRotating();
+        breaking = true;
+        accel.setAll(accel.eval()*-1);
+
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+        accel.setAll(0);
+        breaking = false;
     }
 
     public void forward_pressed(View view){
@@ -228,7 +256,8 @@ public class MainActivity extends AppCompatActivity implements Debuggable {
         debugLayout.setDebugger(this);
         debugLayout.addDebugField("steeringAngle", "StrAng");
         debugLayout.addDebugField("gasValue", "gas");
-        debugLayout.addDebugField("Devon", "Devon is");
+        debugLayout.addDebugField("accelValue", "accel");
+
         debugLayout.setDebug(debug);
 
     }
@@ -238,6 +267,7 @@ public class MainActivity extends AppCompatActivity implements Debuggable {
             debugLayout.setText("gasValue", gasVal);
             debugLayout.setText("steeringAngle", Math.toDegrees(arrowsView.getSteeringAngle()));
             debugLayout.setText("Devon", "stupid");
+            debugLayout.setText("accelValue", accel.eval());
         });
         }
 }
