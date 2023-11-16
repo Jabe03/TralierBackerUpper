@@ -36,7 +36,10 @@ public class MainActivity extends AppCompatActivity implements Debuggable {
     DebugLayout debugLayout;
 
     double steeringAngle;
+
+    double lastSAVal;
     double gasVal;
+    double lastGasVal;
     private static final int FORWARD = 1;
     private static final int REVERSE = -1;
     private static final int PARKED = 0;
@@ -70,11 +73,7 @@ public class MainActivity extends AppCompatActivity implements Debuggable {
     public void setupClient(){
         connectionDot = findViewById(R.id.connection_indicator);
         setConnectionIcon(false);
-        try {
-            Thread.sleep(1000);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
+
         me = new Client("192.168.1.102", 1102);
         //172.17.50.27
         attemptToConnectClient();
@@ -151,10 +150,17 @@ public class MainActivity extends AppCompatActivity implements Debuggable {
             while(me.isRunning()){
                 long now = System.currentTimeMillis();
                 if(now - last >= 1000/SEND_RATE){ /* 1000 milliseconds is equal to 1 second, the contained code executes every 1/60 second */
+
                     steeringAngle = Math.toDegrees(arrowsView.getSteeringAngle());
-                    me.sendGyroReading(steeringAngle);
-                    if(!breaking)
+                    if(!Filter.areSimilar(steeringAngle, lastSAVal, 0.1)){
+                        me.sendGyroReading(steeringAngle);
+                        lastSAVal = steeringAngle;
+                    }
+
+                    if(!breaking && !Filter.areSimilar(gasVal, lastGasVal, 0.01)) {
                         me.sendGasReading(gasVal);
+                        lastGasVal = gasVal;
+                    }
 
                     last = now;
                 }
@@ -166,6 +172,8 @@ public class MainActivity extends AppCompatActivity implements Debuggable {
 
         sender.start();
     }
+
+
 
 
     public void initializeGyroscope(){
@@ -257,6 +265,8 @@ public class MainActivity extends AppCompatActivity implements Debuggable {
         debugLayout.addDebugField("steeringAngle", "StrAng");
         debugLayout.addDebugField("gasValue", "gas");
         debugLayout.addDebugField("accelValue", "accel");
+        debugLayout.addDebugField("packetsSent", "packets sent");
+
 
         debugLayout.setDebug(debug);
 
@@ -268,6 +278,7 @@ public class MainActivity extends AppCompatActivity implements Debuggable {
             debugLayout.setText("steeringAngle", Math.toDegrees(arrowsView.getSteeringAngle()));
             debugLayout.setText("Devon", "stupid");
             debugLayout.setText("accelValue", accel.eval());
+            debugLayout.setText("packetsSent", "" + me.packetsSent);
         });
         }
 }

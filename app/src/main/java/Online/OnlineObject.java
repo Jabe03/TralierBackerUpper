@@ -52,6 +52,8 @@ public abstract class OnlineObject {
 
     Thread packetListener;
 
+    public long packetsSent;
+
     /**
      * Creates an OnlineObject with a specified ID
      * @param id UUID to be this OnlineObject's public ID
@@ -62,6 +64,7 @@ public abstract class OnlineObject {
     }
 
     public OnlineObject(){
+        packetsSent = 0;
         isListening = false;
     }
 
@@ -184,6 +187,7 @@ public abstract class OnlineObject {
         try {
             //Printer.debugPrint(Packet.shortenedID(id) + " sent: " + p.toShortenedString());
             oos.writeObject(p);
+            packetsSent++;
         } catch(SocketException e){
             //Caller must have terminated
             disconnect();

@@ -41,5 +41,9 @@ public class Filter {
         return Math.min(upper, Math.max(lower, real));
     }
 
+    public static boolean areSimilar(double a, double b, double tolerance){
+        return Math.abs(a-b) < tolerance;
+    }
+
 }
 
