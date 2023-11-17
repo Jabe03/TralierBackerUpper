@@ -240,6 +240,7 @@ public class MainActivity extends AppCompatActivity implements Debuggable {
     }
 
     public void brake_pressed(View view){
+        /*
         Thread breaker = new Thread(()-> {
             breaking = true;
             accel.setAll(accel.eval() * -1);
@@ -255,6 +256,8 @@ public class MainActivity extends AppCompatActivity implements Debuggable {
             breaking = false;
         });
         breaker.start();
+        */
+
     }
 
 
