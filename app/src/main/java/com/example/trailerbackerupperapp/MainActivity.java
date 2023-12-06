@@ -9,16 +9,16 @@ import android.view.KeyEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.ImageView;
 import android.hardware.Sensor;
 import androidx.appcompat.app.AppCompatActivity;
-
 import com.example.trailerbackerupper.R;
-import com.example.trailerbackerupperapp.customwidgets.ArrowsView;
+import com.example.trailerbackerupperapp.customwidgets.WheelView;
 
 import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
-    private ArrowsView arrowsView; /* a view object is created on the window, showing the navigation guidance arrows,
+    private WheelView wheelView; /* a view object is created on the window, showing the navigation guidance arrows,
      the name of the object is the name of the class wherein it is defined and also the name of the element as referenced
      in assisted_mode.xml */
     private boolean debug = false;
@@ -26,6 +26,13 @@ public class MainActivity extends AppCompatActivity {
     ArrayList<TextView> debugViews;
 
     private Button gasButton;
+
+    private ImageView imageViewWheel;
+    private ImageView imageViewBrake;
+    private float scaleFactor = 1.2f;
+
+    private ImageView imageViewGas;
+
 
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -40,9 +47,13 @@ public class MainActivity extends AppCompatActivity {
         clientmaker.start();
 
         initializeGyroscope();
-        arrowsView = findViewById(R.id.ArrowsView); /* the ArrowView element being assigned here is an object that seems to be
-        instantiated in assisted_mode.xml using the ArrowsView.java class */
-        
+        wheelView = findViewById(R.id.WheelView); /* the ArrowView element being assigned here is an object that seems to be
+        instantiated in assisted_mode.xml using the WheelView.java class */
+        imageViewWheel = findViewById(R.id.imageViewWheel);
+        imageViewBrake = findViewById(R.id.imageViewBrake);
+
+
+
 
     }
 
@@ -117,18 +128,25 @@ public class MainActivity extends AppCompatActivity {
         debugViews.get(1).setText(String.format("pitch x:%.2f ", pitch));
         debugViews.get(2).setText(String.format("roll y: %.2f ", roll));
 
-        arrowsView.setTrueArrowAngle(pitch/100); /* true arrow represents the current angle of the vehicle */
+        double trueArrowAngle = -1* wheelView.setTrueArrowAngle(pitch/100); /* true arrow represents the current angle of the vehicle */
+
+        System.out.println("wheel angle should be:" + trueArrowAngle);
+        imageViewWheel.setRotation((float) Math.toDegrees(trueArrowAngle));
     }
 
 
     public void gas_pressed(View view){
 
         Log.d("Buttons", "Gas pressed!");
+        imageViewGas.setScaleX(scaleFactor);
+        imageViewGas.setScaleY(scaleFactor);
         //arrowsView.rotateArrowsContinuously();
     }
 
     public void brake_pressed(View view){
         //arrowsView.stopRotating();
+        imageViewBrake.setScaleX(scaleFactor);
+        imageViewBrake.setScaleY(scaleFactor);
     }
 
     public void forward_pressed(View view){
