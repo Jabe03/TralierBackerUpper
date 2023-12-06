@@ -3,8 +3,13 @@ package com.example.trailerbackerupperapp;
 import static java.lang.String.format;
 
 import android.annotation.SuppressLint;
+
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
+
+import android.graphics.Bitmap;
 import android.hardware.SensorManager;
+import android.media.Image;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -22,9 +27,12 @@ import com.example.trailerbackerupperapp.customwidgets.DebugLayout;
 import com.example.trailerbackerupperapp.customwidgets.Debuggable;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import Online.Client;
 import Online.DefaultOnlineCommands;
+import Online.ImageReceiver;
+
 
 public class MainActivity extends AppCompatActivity implements Debuggable {
     private ArrowsView arrowsView; /* a view object is created on the window, showing the navigation guidance arrows,
@@ -34,6 +42,8 @@ public class MainActivity extends AppCompatActivity implements Debuggable {
     private GyroDetector gyro;
     private ImageView connectionDot;
     DebugLayout debugLayout;
+
+    private ImageView trailerCam;
 
     private ArrayList<Button> controlStateButtons;
 
@@ -77,6 +87,8 @@ public class MainActivity extends AppCompatActivity implements Debuggable {
         initializeGyroscope();
         initDebug(false);
         setupClient();
+        initializeImageReciever();
+
 
        }
 
@@ -92,10 +104,23 @@ public class MainActivity extends AppCompatActivity implements Debuggable {
         controlStateButtons.add(findViewById(R.id.AssistedModeButton));
         controlStateButtons.add(findViewById(R.id.AutomaticModeButton));
 
+
+
         Log.d("ControlButtons", controlStateButtons.toString());
         setControlState(controlState);
 
 
+    }
+
+    public Bitmap tempGetBitMapOfTrailer(){
+
+        return  BitmapFactory.decodeResource(getResources(),
+                R.drawable.trailer_image);
+    }
+    public void initializeImageReciever(){
+        ImageReceiver iR = new ImageReceiver(this);
+        trailerCam = findViewById(R.id.TrailerCameraView);
+        iR.start();
     }
     public void initializeGearButtons(){
         gearButtons = new ArrayList<>();
@@ -437,12 +462,14 @@ public class MainActivity extends AppCompatActivity implements Debuggable {
         debugLayout = findViewById(R.id.debugLayout); /* these are to be the textboxes on the display which display gyroscope information */
         debugLayout.setDebugger(this);
         debugLayout.addDebugField("steeringAngle", "StrAng");
-        debugLayout.addDebugField("gasDir", "gas direction");
-        debugLayout.addDebugField("gasValue", "gas");
-        debugLayout.addDebugField("receivedTarget", "Terget angle received");
-        debugLayout.addDebugField("targetArrowVal", "target arrow angle");
+        //debugLayout.addDebugField("gasDir", "gas direction");
+        //debugLayout.addDebugField("gasValue", "gas");
+        //debugLayout.addDebugField("receivedTarget", "Terget angle received");
+        //debugLayout.addDebugField("targetArrowVal", "target arrow angle");
         debugLayout.addDebugField("packetsReceived", "received");
-        //debugLayout.addDebugField("packetsSent", "sent");
+        debugLayout.addDebugField("packetsSent", "sent");
+        //debugLayout.addDebugField("UDPReceived", "UDP Packets Received");
+        //debugLayout.addDebugField("LastUDP", "Last UDP packet received");
         debugLayout.setDebug(debug);
 
     }
@@ -455,6 +482,16 @@ public class MainActivity extends AppCompatActivity implements Debuggable {
             debugLayout.setText("targetArrowVal", arrowsView.getTargetArrowAngle());
             debugLayout.setText("packetsSent", "" + me.packetsSent);
             debugLayout.setText("packetsReceived", "" + me.packetsReceived);
+            debugLayout.setText("UDPReceived", ImageReceiver.count);
+            debugLayout.setText("LastUDP", Arrays.toString(ImageReceiver.lastPacket));
         });
         }
+    public void updateTrailerView(Bitmap image){
+        runOnUiThread(() -> {
+            ImageView imageView = findViewById(R.id.TrailerCameraView);
+            imageView.setImageBitmap(image);
+        });
+    }
+
+
 }
