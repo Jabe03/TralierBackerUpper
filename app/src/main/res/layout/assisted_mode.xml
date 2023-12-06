@@ -30,8 +30,8 @@
 
     <ImageView
         android:id="@+id/TrailerCameraView"
-        android:layout_width="303dp"
-        android:layout_height="164dp"
+        android:layout_width="372dp"
+        android:layout_height="241dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

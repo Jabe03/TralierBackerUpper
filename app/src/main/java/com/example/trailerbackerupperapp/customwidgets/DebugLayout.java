@@ -5,6 +5,7 @@ import android.util.AttributeSet;
 import android.util.Pair;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -23,6 +24,8 @@ public class DebugLayout extends LinearLayout {
     Map<String, Pair<Integer,String>> tags;
     Thread debugger;
     ArrayList<Button> debugButtons;
+
+    ImageView trailerView;
     Debuggable target;
     public static boolean debug;
 
@@ -48,12 +51,13 @@ public class DebugLayout extends LinearLayout {
     private void init(){
         this.debug = false;
         this.tags = new HashMap<>();
+
     }
 
     public void initDebugButtons(MainActivity act){
         this.debugButtons = new ArrayList<>();
         debugButtons.add((Button)act.findViewById(R.id.off_button));
-        setDebug(debug);
+
     }
     public void addDebugField(String tag, String prefix){
         tags.put(tag,new Pair<>(this.getChildCount(),prefix));
@@ -85,13 +89,15 @@ public class DebugLayout extends LinearLayout {
                 b.setVisibility(VISIBLE);
             }
             this.setVisibility(VISIBLE);
+            trailerView.setVisibility(VISIBLE);
             startDebugger();
-            return;
+        }else {
+            for (Button b : debugButtons) {
+                b.setVisibility(GONE);
+            }
+            trailerView.setVisibility(GONE);
+            this.setVisibility(GONE);
         }
-        for(Button b: debugButtons){
-            b.setVisibility(GONE);
-        }
-        this.setVisibility(GONE);
     }
 
     private void startDebugger(){
@@ -117,7 +123,8 @@ public class DebugLayout extends LinearLayout {
     public void setDebugger(MainActivity act){
         target = act;
         initDebugButtons(act);
-
+        trailerView = act.findViewById(R.id.TrailerCameraView);
+        setDebug(debug);
     }
 
     public static boolean isDebugging(){
