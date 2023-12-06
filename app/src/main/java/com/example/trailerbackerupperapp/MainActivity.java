@@ -3,18 +3,17 @@ package com.example.trailerbackerupperapp;
 import static java.lang.String.format;
 
 import android.annotation.SuppressLint;
+import android.graphics.Color;
 import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.TextView;
 import android.hardware.Sensor;
+
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.trailerbackerupper.R;
@@ -25,6 +24,7 @@ import com.example.trailerbackerupperapp.customwidgets.Debuggable;
 import java.util.ArrayList;
 
 import Online.Client;
+import Online.DefaultOnlineCommands;
 
 public class MainActivity extends AppCompatActivity implements Debuggable {
     private ArrowsView arrowsView; /* a view object is created on the window, showing the navigation guidance arrows,
@@ -35,8 +35,9 @@ public class MainActivity extends AppCompatActivity implements Debuggable {
     private ImageView connectionDot;
     DebugLayout debugLayout;
 
-    double steeringAngle;
+    private ArrayList<Button> controlStateButtons;
 
+    double steeringAngle;
     double lastSAVal;
     double gasVal;
     double lastGasVal;
@@ -46,22 +47,34 @@ public class MainActivity extends AppCompatActivity implements Debuggable {
     double gasDir;
     volatile Filter accel;
 
+    private static final int BUTTON_DISABLED = Color.rgb(129, 125, 140);
+    private static final int BUTTON_ENABLED = Color.rgb(103,80,164);
+    private static final int BUTTON_HILIGHTED = Color.rgb(137,116,197);
+
+
+
+    int controlState;
+    private static final int DEFAULT_CONTROL_STATE = DefaultOnlineCommands.MANUAL_MODE;
+
+
+
     Client me;
     private Button gasButton;
 
     private static final int SEND_RATE = 60;
-    private static final double DECAY_RATE = 1;
+
     private boolean breaking;
-    private boolean manualOn;
+    private boolean gasDisabled;
     private boolean lastManualOn;
 
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.assisted_mode); /* this is the mode with the guidance arrows aka ArrowsView */
         arrowsView = findViewById(R.id.ArrowsView); /* the ArrowView element being assigned here is an object that seems to be instantiated in assisted_mode.xml using the ArrowsView.java class */
+        //System.out.println("Debug button is: " + (Button)findViewById(R.id.off_button));
+        initializeControlButtons();
         initializeGyroscope();
         initDebug(false);
-        initializeGasAndBrake();
         setupClient();
 
        }
@@ -69,13 +82,26 @@ public class MainActivity extends AppCompatActivity implements Debuggable {
 
 
 
+    private void initializeControlButtons(){
+        initializeGasAndBrake();
 
+        controlState = DEFAULT_CONTROL_STATE;
+        controlStateButtons = new ArrayList<>();
+        controlStateButtons.add(findViewById(R.id.ManualModeButton));
+        controlStateButtons.add(findViewById(R.id.AssistedModeButton));
+        controlStateButtons.add(findViewById(R.id.AutomaticModeButton));
+
+        Log.d("ControlButtons", controlStateButtons.toString());
+        setControlState(controlState);
+
+
+    }
 
     public void setupClient(){
         connectionDot = findViewById(R.id.connection_indicator);
         setConnectionIcon(false);
 
-        me = new Client("192.168.1.102", 1102);
+        me = new Client("192.168.1.103", 1102, this);
         //172.17.50.27
         attemptToConnectClient();
     }
@@ -85,27 +111,28 @@ public class MainActivity extends AppCompatActivity implements Debuggable {
         gasDir = FORWARD;
         gasVal = 0;
         gasButton = findViewById(R.id.GasButton);
-        accel = new Filter((int)(SEND_RATE*DECAY_RATE));
+        //accel = new Filter((int)(SEND_RATE*DECAY_RATE));
+        gasDisabled = false;
         gasButton.setOnTouchListener((v, event) -> {
             switch (event.getAction()) {
                 case MotionEvent.ACTION_DOWN:
                 case MotionEvent.ACTION_MOVE:
                     gasVal = gasDir*Filter.bound(((((v.getHeight() - event.getY()) / v.getHeight() + 0.5) / (3f/2f))), 0,1);
-                    System.out.println("Gas pressed!");
+                    //System.out.println("Gas pressed!");
                     break;
                 case MotionEvent.ACTION_UP:
                     gasVal = 0;
-                    System.out.println("Gas released!");
+                    //System.out.println("Gas released!");
                     break;
             }
             return true;
         });
-
+        /*
         Thread valUpdater = new Thread(()->{
             long last = System.currentTimeMillis();
             while(true){
                 long now = System.currentTimeMillis();
-                if(now - last >= 1000/SEND_RATE){ /* 1000 milliseconds is equal to 1 second, the contained code executes every 1/60 second */
+                if(now - last >= 1000/SEND_RATE){
                     accel.append((float)gasVal);
                     last = now;
                 }
@@ -113,7 +140,7 @@ public class MainActivity extends AppCompatActivity implements Debuggable {
 
         });
         valUpdater.start();
-
+        */
     }
 
     public void attemptToConnectClient (){
@@ -147,6 +174,7 @@ public class MainActivity extends AppCompatActivity implements Debuggable {
     }
     private void startStreamThreads(){
         Thread sender = new Thread(()->{
+            me.startProcessingPackets();
            long last = System.currentTimeMillis();
             while(me.isRunning()){
                 long now = System.currentTimeMillis();
@@ -158,14 +186,14 @@ public class MainActivity extends AppCompatActivity implements Debuggable {
                         lastSAVal = steeringAngle;
                     }
 
-                    if(!breaking && !Filter.areSimilar(gasVal, lastGasVal, 0.05)) {
+                    if(!breaking && !Filter.areSimilar(gasVal, lastGasVal, 0.05) && !gasDisabled) {
                         me.sendGasReading(gasVal);
                         lastGasVal = gasVal;
                     }
-                    if(lastManualOn != manualOn) {
+                    /*if(lastManualOn != manualOn) {
                         me.requestCameraChange(manualOn);
                         lastManualOn = manualOn;
-                    }
+                    }*/
 
                     last = now;
                 }
@@ -231,15 +259,22 @@ public class MainActivity extends AppCompatActivity implements Debuggable {
 
 
     }
+    public void updateSuggestedSteeringAngle(double val){
+        Log.d("PacketProcessing", "MainActivity level sa;");
 
+        //arrowsView.setTargetArrowAngle(val);
+    }
 
     public void gas_pressed(View view){
 
-        Log.d("Buttons", "Gas pressed!");
+        //Log.d("Buttons", "Gas pressed!");
         //arrowsView.rotateArrowsContinuously();
     }
 
     public void brake_pressed(View view){
+        if(controlState == DefaultOnlineCommands.AUTOMATIC_MODE){
+            setControlState(DefaultOnlineCommands.MANUAL_MODE);
+        }
         /*
         Thread breaker = new Thread(()-> {
             breaking = true;
@@ -265,6 +300,7 @@ public class MainActivity extends AppCompatActivity implements Debuggable {
         gasDir = FORWARD;
     }
 
+
     public void reverse_pressed(View view){
         gasDir = REVERSE;
     }
@@ -274,20 +310,81 @@ public class MainActivity extends AppCompatActivity implements Debuggable {
     }
 
     public void manual_pressed(View view){
-        manualOn = !manualOn;
+        setControlState(DefaultOnlineCommands.MANUAL_MODE);
+    }
 
+    public void automatic_pressed(View view){
+        setControlState(DefaultOnlineCommands.AUTOMATIC_MODE);
+    }
 
+    public void assisted_pressed(View view){
+        setControlState(DefaultOnlineCommands.ASSISTED_MODE);
+    }
+
+    public void off_pressed(View view){
+        sendUpdatedControlState(DefaultOnlineCommands.SHUTDOWN);
+    }
+
+    public void sendUpdatedControlState(int state){
+        if(me == null){
+            return;
+        }
+        Thread sender = new Thread(()-> me.sendControlModeChange(state));
+        sender.start();
+    }
+
+    public void setControlState(int state){
+        this.controlState = state;
+        switch(this.controlState){
+            case DefaultOnlineCommands.MANUAL_MODE:
+                runOnUiThread(()-> {
+                    gasDisabled = false;
+                    gasButton.setBackgroundColor(BUTTON_ENABLED);
+                    highlightOnlyOneButton(controlStateButtons, DefaultOnlineCommands.MANUAL_MODE);
+                });
+                break;
+            case DefaultOnlineCommands.ASSISTED_MODE:
+                runOnUiThread(()-> {
+                    //ENABLE TARGET ARROW ON THIS LINE
+                    gasDisabled = false;
+                    gasButton.setBackgroundColor(BUTTON_ENABLED);
+                    highlightOnlyOneButton(controlStateButtons, DefaultOnlineCommands.ASSISTED_MODE);
+                });
+                break;
+            case DefaultOnlineCommands.AUTOMATIC_MODE:
+                runOnUiThread(()-> {
+                    gasButton.setBackgroundColor(BUTTON_DISABLED);
+                    gasDisabled = true;
+                    highlightOnlyOneButton(controlStateButtons, DefaultOnlineCommands.AUTOMATIC_MODE);
+                });
+                break;
+            default:
+                break;
+        }
+        sendUpdatedControlState(state);
+    }
+
+    private void highlightOnlyOneButton(ArrayList<Button> buttons, int index){
+        runOnUiThread(()-> {
+            for (int i = 0; i < buttons.size(); i++) {
+                Button curr = buttons.get(i);
+                if (i != index) {
+                    curr.setBackgroundColor(BUTTON_ENABLED);
+                } else {
+                    curr.setBackgroundColor(BUTTON_HILIGHTED);
+                }
+            }
+        });
     }
 
     public void initDebug(boolean debug){
         debugLayout = findViewById(R.id.debugLayout); /* these are to be the textboxes on the display which display gyroscope information */
         debugLayout.setDebugger(this);
-        debugLayout.addDebugField("steeringAngle", "StrAng");
-        debugLayout.addDebugField("gasValue", "gas");
-        debugLayout.addDebugField("cameraMode", "camera mode");
-        debugLayout.addDebugField("packetsSent", "packets sent");
-
-
+        //debugLayout.addDebugField("steeringAngle", "StrAng");
+        //debugLayout.addDebugField("gasValue", "gas");
+        debugLayout.addDebugField("targetArrowVal", "target arrow angle");
+        debugLayout.addDebugField("packetsReceived", "received");
+        //debugLayout.addDebugField("packetsSent", "sent");
         debugLayout.setDebug(debug);
 
     }
@@ -296,8 +393,9 @@ public class MainActivity extends AppCompatActivity implements Debuggable {
         runOnUiThread(() ->{
             debugLayout.setText("gasValue", lastGasVal);
             debugLayout.setText("steeringAngle", lastSAVal);
-            debugLayout.setText("cameraMode", "" + manualOn);
+            debugLayout.setText("targetArrowVal", arrowsView.getTargetArrowAngle());
             debugLayout.setText("packetsSent", "" + me.packetsSent);
+            debugLayout.setText("packetsReceived", "" + me.packetsReceived);
         });
         }
 }

@@ -10,11 +10,11 @@
         android:id="@+id/BrakeButton"
         style="@style/Widget.AppCompat.Button"
         android:layout_width="174dp"
-        android:layout_height="101dp"
+        android:layout_height="120dp"
         android:layout_marginStart="16dp"
         android:layout_marginBottom="16dp"
-        android:text="Brake"
         android:onClick="brake_pressed"
+        android:text="Brake"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 
@@ -43,7 +43,7 @@
         android:id="@+id/GasButton"
         style="@style/Widget.AppCompat.Button"
         android:layout_width="167dp"
-        android:layout_height="150dp"
+        android:layout_height="120dp"
         android:layout_marginEnd="16dp"
         android:layout_marginBottom="16dp"
         android:onClick="gas_pressed"
@@ -89,10 +89,9 @@
         android:id="@+id/ManualModeButton"
         android:layout_width="160dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
         android:layout_marginEnd="16dp"
-        android:text="Manual Mode"
         android:onClick="manual_pressed"
+        android:text="Manual Mode"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -101,6 +100,7 @@
         android:layout_width="160dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="12dp"
+        android:onClick="assisted_pressed"
         android:text="Assisted Mode"
         app:layout_constraintEnd_toEndOf="@+id/ManualModeButton"
         app:layout_constraintStart_toStartOf="@+id/ManualModeButton"
@@ -111,6 +111,7 @@
         android:layout_width="160dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="12dp"
+        android:onClick="automatic_pressed"
         android:text="Automatic Mode"
         app:layout_constraintEnd_toEndOf="@+id/AssistedModeButton"
         app:layout_constraintHorizontal_bias="0.0"
@@ -135,4 +136,27 @@
         app:layout_constraintHorizontal_bias="0.54"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
+        android:id="@+id/off_button"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:layout_marginTop="12dp"
+        android:insetTop="0dp"
+        android:insetBottom="0dp"
+        android:onClick="off_pressed"
+        android:paddingLeft="0dp"
+        android:paddingRight="0dp"
+        android:rotation="0"
+        android:rotationX="0"
+        android:rotationY="0"
+        android:text="OFF"
+        android:textAlignment="center"
+        android:textSize="5pt"
+        app:cornerRadius="0dp"
+        app:iconPadding="0dp"
+        app:iconSize="0dp"
+        app:layout_constraintEnd_toEndOf="@+id/AutomaticModeButton"
+        app:layout_constraintTop_toBottomOf="@+id/AutomaticModeButton" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

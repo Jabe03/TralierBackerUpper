@@ -4,21 +4,28 @@ import android.content.Context;
 import android.util.AttributeSet;
 import android.util.Pair;
 import android.view.View;
+import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.Nullable;
 
+import com.example.trailerbackerupper.R;
+import com.example.trailerbackerupperapp.MainActivity;
+
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+
+import Online.DefaultOnlineCommands;
 
 public class DebugLayout extends LinearLayout {
     Map<String, Pair<Integer,String>> tags;
     Thread debugger;
-
+    ArrayList<Button> debugButtons;
     Debuggable target;
+    public static boolean debug;
 
-    boolean debug;
     public DebugLayout(Context context) {
         super(context);
         init();
@@ -41,24 +48,27 @@ public class DebugLayout extends LinearLayout {
     private void init(){
         this.debug = false;
         this.tags = new HashMap<>();
+    }
 
-
+    public void initDebugButtons(MainActivity act){
+        this.debugButtons = new ArrayList<>();
+        debugButtons.add((Button)act.findViewById(R.id.off_button));
+        setDebug(debug);
     }
     public void addDebugField(String tag, String prefix){
         tags.put(tag,new Pair<>(this.getChildCount(),prefix));
         TextView newDebug = new TextView(this.getContext());
         newDebug.setText("noinit");
         newDebug.setVisibility(VISIBLE);
-
         this.addView(newDebug);
-        System.out.println("DebugLayout now has " + this.getChildCount());
+        //System.out.println("DebugLayout now has " + this.getChildCount());
         setText(tag, ":)");
     }
     public void setText(String tag, String value){
         Pair<Integer,String> indexAndPrefix= tags.get(tag);
         if(indexAndPrefix != null){
             TextView t =  ((TextView)this.getChildAt(indexAndPrefix.first));
-            System.out.println(indexAndPrefix.first + ", " + t + indexAndPrefix.second + ": " + value+ " ");
+            //System.out.println(indexAndPrefix.first + ", " + t + indexAndPrefix.second + ": " + value+ " ");
             t.setText(indexAndPrefix.second + ": " + value+ " ");
         }
 
@@ -71,9 +81,15 @@ public class DebugLayout extends LinearLayout {
     public void setDebug(boolean debug){
         this.debug = debug;
         if(this.debug){
+            for(Button b: debugButtons){
+                b.setVisibility(VISIBLE);
+            }
             this.setVisibility(VISIBLE);
             startDebugger();
             return;
+        }
+        for(Button b: debugButtons){
+            b.setVisibility(GONE);
         }
         this.setVisibility(GONE);
     }
@@ -98,9 +114,14 @@ public class DebugLayout extends LinearLayout {
         setDebug(!debug);
     }
 
-    public void setDebugger(Debuggable d){
-        target = d;
+    public void setDebugger(MainActivity act){
+        target = act;
+        initDebugButtons(act);
 
+    }
+
+    public static boolean isDebugging(){
+        return debug;
     }
 }
 

@@ -194,6 +194,8 @@ public class ArrowsView extends View {
 
     public void setTargetArrowAngle(double theta){  /* this function mirrors the setTrueArrowAngle function except does those operations
     with the target arrow */
+        //Log.d("PacketProcessing", "" + theta);
+
         targetArrowAngle = getBoundedArrowAngle(theta);
         targetArrow[0] = (float)(Math.cos(targetArrowAngle + Math.PI/((float)2)) * TARGET_ARROW_LENGTH);
         targetArrow[1] = (float)(Math.sin(targetArrowAngle + Math.PI/((float)2)) * TARGET_ARROW_LENGTH);
@@ -266,5 +268,8 @@ public class ArrowsView extends View {
 
     public double getSteeringAngle(){
         return trueArrowAngle/INFLATION_FACTOR;
+    }
+    public double getTargetArrowAngle(){
+        return targetArrowAngle/INFLATION_FACTOR;
     }
 }

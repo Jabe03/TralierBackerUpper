@@ -58,6 +58,10 @@ public final class Command implements Serializable {
         return result.toString();
     }
 
+    public String toString(){
+        return getCommandString();
+    }
+
     /**
      * Converts the type of this message (given in the commands) to a readable string and returns it
      * @return the readable representation of the type
@@ -91,6 +95,9 @@ public final class Command implements Serializable {
      * @return type of command
      */
     public String getType() {
+        if(commands.size() == 0 ){
+            return "";
+        }
         return commands.get(0);
     }
 

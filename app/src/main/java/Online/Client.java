@@ -1,10 +1,13 @@
 package Online;
 
+
+
 import android.util.Log;
+
+import com.example.trailerbackerupperapp.MainActivity;
 
 import java.io.IOException;
 import java.net.Socket;
-import java.util.UUID;
 
 /**
  * Clients are standalone OnlineObjects that connect to a server to communicate.
@@ -15,14 +18,20 @@ public class Client extends OnlineObject {
     String address;
     int port;
 
+    MainActivity host;
+
+
+
+
 
     /**
      * Creates a client object that connects to a server with the specified port and address.
      * @param address IPv4 address of the server this client connects to
      * @param port Port that the client will connect to
      */
-    public Client(String address, int port){
+    public Client(String address, int port, MainActivity host){
         super();
+        this.host = host;
         setPacketProcessor();
         this.address = address;
         this.port = port;
@@ -41,8 +50,8 @@ public class Client extends OnlineObject {
      * Creates a client object that connects to a server with the specified address and with a default port (1452)
      * @param address IPv4 address of the server this client connects to
      */
-    public Client(String address){
-        this(address, 1452);
+    public Client(String address, MainActivity host){
+        this(address, 1452, host);
     }
 
     protected void setPacketProcessor(){
@@ -68,6 +77,7 @@ public class Client extends OnlineObject {
             } catch (IOException e){
                 try {
                     System.out.println("Failed trying again");
+                    e.printStackTrace();
                     Thread.sleep(1000);
                 } catch (InterruptedException ex) {
                     throw new RuntimeException(ex);
@@ -86,7 +96,7 @@ public class Client extends OnlineObject {
                     getID()
             );
             //Log.d("Sending gyroreading", "Packet constructed, sending...");
-            this.sendMessage(p);
+            this.sendAppData(p);
         }
     }
 
@@ -105,7 +115,7 @@ public class Client extends OnlineObject {
                     getID()
             );
             //Log.d("Sending gyroreading", "Packet constructed, sending...");
-            this.sendMessage(p);
+            this.sendAppData(p);
         }
     }
 
@@ -116,8 +126,24 @@ public class Client extends OnlineObject {
                     state? 1 : 0,
                     this.getID()
             );
-            this.sendMessage(p);
+            this.sendAppData(p);
         }
 
+    }
+
+    public void sendControlModeChange(int mode){
+        if(isRunning()){
+            Packet p = new Packet(
+              DefaultOnlineCommands.CONTROL_SIGNAL + DefaultOnlineCommands.CONTROL_MODE_CHANGE,
+              mode,
+              this.getID()
+            );
+            this.sendAppData(p);
+        }
+    }
+
+    public void updateSuggestedSteeringAngle(double val){
+        Log.d("PacketProcessing", "Client level sa;");
+        host.updateSuggestedSteeringAngle(val);
     }
 }

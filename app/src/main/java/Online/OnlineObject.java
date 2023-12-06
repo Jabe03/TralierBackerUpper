@@ -1,5 +1,9 @@
 package Online;
 
+import android.util.Log;
+
+import com.example.trailerbackerupperapp.customwidgets.DebugLayout;
+
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -54,6 +58,11 @@ public abstract class OnlineObject {
 
     public long packetsSent;
 
+    public long packetsReceived;
+
+    private static final String[] DEBUG_BLACKLIST = new String[]{DefaultOnlineCommands.STEERING_ANGLE, DefaultOnlineCommands.THROTTLE};
+
+
     /**
      * Creates an OnlineObject with a specified ID
      * @param id UUID to be this OnlineObject's public ID
@@ -65,6 +74,7 @@ public abstract class OnlineObject {
 
     public OnlineObject(){
         packetsSent = 0;
+        packetsReceived = 0;
         isListening = false;
     }
 
@@ -173,20 +183,22 @@ public abstract class OnlineObject {
         }
         if(o instanceof Packet){
             return (Packet)o;
-        } else if( o instanceof byte[]){
-
+        }  else if(o instanceof String){
+            return Packet.fromJSONString(((String)o));
         }
-        throw new NotAPacketException("OnlineObject received data that wasn't of type Packet" + o);
+        throw new NotAPacketException("OnlineObject received data that wasn't of type Packet; " + o.getClass() + ": " + o);
     }
 
     /**
      * Sends a packet to the caller that this OnlineObject is connected to
      * @param p Packet to go to the caller
      */
-    public void sendMessage(Packet p){
+    public void sendMessage(Object o){
+        //System.out.println("sending " + o);
         try {
             //Printer.debugPrint(Packet.shortenedID(id) + " sent: " + p.toShortenedString());
-            oos.writeObject(p);
+
+            oos.writeObject(o);
             packetsSent++;
         } catch(SocketException e){
             //Caller must have terminated
@@ -195,6 +207,23 @@ public abstract class OnlineObject {
         catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    public void sendAppData(Packet p){
+        String json = p.toJSONString();
+        if(DebugLayout.isDebugging()){
+            printIfNotBlacklisted(json);
+        }
+        sendMessage(json);
+    }
+
+    private void printIfNotBlacklisted(String s){
+        for(String filter: DEBUG_BLACKLIST){
+            if(s.contains(filter)){
+                return;
+            }
+        }
+        Log.d("Packets", s);
     }
 
     public void setCallerID(UUID id){
@@ -261,6 +290,10 @@ public abstract class OnlineObject {
         );
         sendMessage(p);
         processor.addRequest(p.getPacketID(), flag);
+    }
+
+    public void incrementPacketsReceived(){
+        packetsReceived++;
     }
 
 

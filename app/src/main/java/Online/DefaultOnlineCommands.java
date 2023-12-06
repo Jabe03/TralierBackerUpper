@@ -54,6 +54,17 @@ public class DefaultOnlineCommands {
 
     public static final String CAMERA_MODE_CHANGE = "cmc;";
 
+    public static final String CONTROL_MODE_CHANGE = "cmch;";
+
+    public static final int MANUAL_MODE = 0;
+
+    public static final int ASSISTED_MODE = 1;
+
+    public static final int AUTOMATIC_MODE = 2;
+
+    public static final int SHUTDOWN = -1;
+
+
     /**
      * converts a UUID to a IDIdentifier, which is an UUID in the form of a command identifier
      * @param id UUID to be converted
