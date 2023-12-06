@@ -105,6 +105,7 @@ public class MainActivity extends AppCompatActivity implements Debuggable {
 
 
         highlightOnlyOneButton(gearButtons, 1);
+        gasDir = PARKED;
 
     }
 
@@ -123,7 +124,7 @@ public class MainActivity extends AppCompatActivity implements Debuggable {
         gasDir = FORWARD;
         gasVal = 0;
         gasButton = findViewById(R.id.GasButton);
-        gasButton.setBackgroundColor(Color.rgb(0,0,0));
+        //gasButton.setBackgroundColor(Color.rgb(0,0,0));
         //accel = new Filter((int)(SEND_RATE*DECAY_RATE));
         gasDisabled = false;
         gasButton.setOnTouchListener((v, event) -> {
@@ -133,10 +134,16 @@ public class MainActivity extends AppCompatActivity implements Debuggable {
             switch (event.getAction()) {
                 case MotionEvent.ACTION_DOWN:
                 case MotionEvent.ACTION_MOVE:
-                    gasVal = gasDir*Filter.bound(((((v.getHeight() - event.getY()) / v.getHeight() + 0.5) / (3f/2f))), 0,1);
-                    int r = (int) (Color.red(BUTTON_ENABLED) * (1-gasVal) + Color.red(BUTTON_HILIGHTED)*(gasVal));
-                    int g = (int) (Color.green(BUTTON_ENABLED) * (1-gasVal) + Color.green(BUTTON_HILIGHTED)*(gasVal));
-                    int b = (int) (Color.blue(BUTTON_ENABLED) * (1-gasVal) + Color.blue(BUTTON_HILIGHTED)*(gasVal));
+                    double realVal = Filter.bound(((((v.getHeight() - event.getY()) / v.getHeight()))), 0,1);
+                    if(controlState == DefaultOnlineCommands.ASSISTED_MODE){
+                        gasVal = gasDir* getGasPercent(realVal, 0.4, 0.65 );
+                    } else{
+                        gasVal = gasDir* getGasPercent(realVal, 0.35, 1);
+                    }
+                    double colorWeight = Math.pow(Math.abs(gasVal),2);
+                    int r = (int) (Color.red(BUTTON_ENABLED) * (1-colorWeight) + Color.red(BUTTON_HILIGHTED)*(colorWeight));
+                    int g = (int) (Color.green(BUTTON_ENABLED) * (1-colorWeight) + Color.green(BUTTON_HILIGHTED)*(colorWeight));
+                    int b = (int) (Color.blue(BUTTON_ENABLED) * (1-colorWeight) + Color.blue(BUTTON_HILIGHTED)*(colorWeight));
                     gasButton.setBackgroundColor(Color.rgb(r,g,b));
                     //System.out.println("Gas pressed!");
                     break;
@@ -180,6 +187,13 @@ public class MainActivity extends AppCompatActivity implements Debuggable {
         });
         valUpdater.start();
         */
+    }
+
+    private double getGasPercent(double realPercent, double min, double max){
+        if(realPercent == 0){
+            return 0;
+        }
+        return min + realPercent*(max-min);
     }
 
     public void attemptToConnectClient (){
@@ -297,9 +311,12 @@ public class MainActivity extends AppCompatActivity implements Debuggable {
 
     }
     public void updateSuggestedSteeringAngle(double val){
-        Log.d("PacketProcessing", "MainActivity level sa;");
-
-        //arrowsView.setTargetArrowAngle(val);
+        //Log.d("PacketProcessing", "MainActivity level sa;");
+        double rads = Math.toRadians(val);
+        runOnUiThread(()-> {
+                    debugLayout.setText("receivedTarget", "D(" + val + ") R(" + rads + ")");
+                });
+        arrowsView.setTargetArrowAngle(rads);
     }
 
     public void gas_pressed(View view){
@@ -420,7 +437,9 @@ public class MainActivity extends AppCompatActivity implements Debuggable {
         debugLayout = findViewById(R.id.debugLayout); /* these are to be the textboxes on the display which display gyroscope information */
         debugLayout.setDebugger(this);
         debugLayout.addDebugField("steeringAngle", "StrAng");
+        debugLayout.addDebugField("gasDir", "gas direction");
         debugLayout.addDebugField("gasValue", "gas");
+        debugLayout.addDebugField("receivedTarget", "Terget angle received");
         debugLayout.addDebugField("targetArrowVal", "target arrow angle");
         debugLayout.addDebugField("packetsReceived", "received");
         //debugLayout.addDebugField("packetsSent", "sent");
@@ -431,6 +450,7 @@ public class MainActivity extends AppCompatActivity implements Debuggable {
     public void updateDebug() {
         runOnUiThread(() ->{
             debugLayout.setText("gasValue", gasVal);
+            debugLayout.setText("gasDir", gasDir);
             debugLayout.setText("steeringAngle", arrowsView.getSteeringAngle());
             debugLayout.setText("targetArrowVal", arrowsView.getTargetArrowAngle());
             debugLayout.setText("packetsSent", "" + me.packetsSent);

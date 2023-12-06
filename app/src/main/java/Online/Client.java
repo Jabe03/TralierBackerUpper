@@ -143,7 +143,7 @@ public class Client extends OnlineObject {
     }
 
     public void updateSuggestedSteeringAngle(double val){
-        Log.d("PacketProcessing", "Client level sa;");
+        //Log.d("PacketProcessing", "Client level sa;");
         host.updateSuggestedSteeringAngle(val);
     }
 }

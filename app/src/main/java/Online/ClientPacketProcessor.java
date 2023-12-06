@@ -34,11 +34,11 @@ public class ClientPacketProcessor extends PacketProcessor{
                 System.out.println(p.getData());
                 return;
             case DefaultOnlineCommands.INFO:
-                Log.d("PacketReceived", "Made it to INFO");
+                //Log.d("PacketReceived", "Made it to INFO");
                 switch(p.getCommand().getCommandLine(1)){
                     case DefaultOnlineCommands.STEERING_ANGLE:
-                        Log.d("PacketProcessing", "Received a inf;str; packet, updating");
-                        //this.host.updateSuggestedSteeringAngle((double)p.getData());
+                        //Log.d("PacketProcessing", "Received a inf;SA; packet, updating");
+                        this.host.updateSuggestedSteeringAngle((double)p.getData());
                         break;
                     default:
                         Log.d("PacketProcessing", p.getCommand().getCommandLine(1));

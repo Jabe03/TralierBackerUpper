@@ -194,7 +194,7 @@ public class ArrowsView extends View {
 
     public void setTargetArrowAngle(double theta){  /* this function mirrors the setTrueArrowAngle function except does those operations
     with the target arrow */
-        //Log.d("PacketProcessing", "" + theta);
+        Log.d("PacketProcessing", "Target arrow updated" + theta);
 
         targetArrowAngle = getBoundedArrowAngle(theta);
         targetArrow[0] = (float)(Math.cos(targetArrowAngle + Math.PI/((float)2)) * TARGET_ARROW_LENGTH);

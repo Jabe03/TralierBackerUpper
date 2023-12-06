@@ -115,14 +115,4 @@ SensorEventListener interface. This means that instances of this class can liste
         return angles;
     }
 
-    public float getPitch(){
-        return getPhoneRotation()[1];
-    }
-
-    public double getSteeringAngle(){
-        return 0.0;
-    }
-
-
-
 }
