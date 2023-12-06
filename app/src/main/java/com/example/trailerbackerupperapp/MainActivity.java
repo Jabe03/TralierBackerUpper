@@ -37,6 +37,7 @@ public class MainActivity extends AppCompatActivity implements Debuggable {
 
     private ArrayList<Button> controlStateButtons;
 
+    private ArrayList<Button> gearButtons;
     double steeringAngle;
     double lastSAVal;
     double gasVal;
@@ -84,7 +85,7 @@ public class MainActivity extends AppCompatActivity implements Debuggable {
 
     private void initializeControlButtons(){
         initializeGasAndBrake();
-
+        initializeGearButtons();
         controlState = DEFAULT_CONTROL_STATE;
         controlStateButtons = new ArrayList<>();
         controlStateButtons.add(findViewById(R.id.ManualModeButton));
@@ -94,6 +95,16 @@ public class MainActivity extends AppCompatActivity implements Debuggable {
         Log.d("ControlButtons", controlStateButtons.toString());
         setControlState(controlState);
 
+
+    }
+    public void initializeGearButtons(){
+        gearButtons = new ArrayList<>();
+        gearButtons.add(findViewById(R.id.Forward));
+        gearButtons.add(findViewById(R.id.Park));
+        gearButtons.add(findViewById(R.id.Reverse));
+
+
+        highlightOnlyOneButton(gearButtons, 1);
 
     }
 
@@ -108,25 +119,53 @@ public class MainActivity extends AppCompatActivity implements Debuggable {
 
     @SuppressLint("ClickableViewAccessibility")
     public void initializeGasAndBrake(){
+
         gasDir = FORWARD;
         gasVal = 0;
         gasButton = findViewById(R.id.GasButton);
+        gasButton.setBackgroundColor(Color.rgb(0,0,0));
         //accel = new Filter((int)(SEND_RATE*DECAY_RATE));
         gasDisabled = false;
         gasButton.setOnTouchListener((v, event) -> {
+            if(gasDisabled){
+                return false;
+            }
             switch (event.getAction()) {
                 case MotionEvent.ACTION_DOWN:
                 case MotionEvent.ACTION_MOVE:
                     gasVal = gasDir*Filter.bound(((((v.getHeight() - event.getY()) / v.getHeight() + 0.5) / (3f/2f))), 0,1);
+                    int r = (int) (Color.red(BUTTON_ENABLED) * (1-gasVal) + Color.red(BUTTON_HILIGHTED)*(gasVal));
+                    int g = (int) (Color.green(BUTTON_ENABLED) * (1-gasVal) + Color.green(BUTTON_HILIGHTED)*(gasVal));
+                    int b = (int) (Color.blue(BUTTON_ENABLED) * (1-gasVal) + Color.blue(BUTTON_HILIGHTED)*(gasVal));
+                    gasButton.setBackgroundColor(Color.rgb(r,g,b));
                     //System.out.println("Gas pressed!");
                     break;
                 case MotionEvent.ACTION_UP:
+                    gasButton.setBackgroundColor(BUTTON_ENABLED);
                     gasVal = 0;
                     //System.out.println("Gas released!");
                     break;
             }
             return true;
         });
+        Button brakeButton = findViewById(R.id.BrakeButton);
+        brakeButton.setOnTouchListener((v, event) -> {
+            switch (event.getAction()) {
+                case MotionEvent.ACTION_DOWN:
+                    if(controlState == DefaultOnlineCommands.AUTOMATIC_MODE){
+                        setControlState(DefaultOnlineCommands.MANUAL_MODE);
+                    }
+                    brakeButton.setBackgroundColor(BUTTON_HILIGHTED);
+                    //System.out.println("Gas pressed!");
+                    break;
+                case MotionEvent.ACTION_UP:
+                    brakeButton.setBackgroundColor(BUTTON_ENABLED);
+                    //System.out.println("Gas released!");
+                    break;
+            }
+            return true;
+        });
+        brakeButton.setBackgroundColor(BUTTON_ENABLED);
         /*
         Thread valUpdater = new Thread(()->{
             long last = System.currentTimeMillis();
@@ -158,8 +197,6 @@ public class MainActivity extends AppCompatActivity implements Debuggable {
                 //Log.d("Starting stream threads", "yay");
                 startStreamThreads();
             }
-
-
         });
         clientmaker.start();
     }
@@ -272,9 +309,7 @@ public class MainActivity extends AppCompatActivity implements Debuggable {
     }
 
     public void brake_pressed(View view){
-        if(controlState == DefaultOnlineCommands.AUTOMATIC_MODE){
-            setControlState(DefaultOnlineCommands.MANUAL_MODE);
-        }
+
         /*
         Thread breaker = new Thread(()-> {
             breaking = true;
@@ -298,15 +333,19 @@ public class MainActivity extends AppCompatActivity implements Debuggable {
 
     public void forward_pressed(View view){
         gasDir = FORWARD;
+        highlightOnlyOneButton(gearButtons, 0);
     }
 
 
     public void reverse_pressed(View view){
         gasDir = REVERSE;
+        highlightOnlyOneButton(gearButtons, 2);
+
     }
 
     public void park_pressed(View view){
         gasDir = PARKED;
+        highlightOnlyOneButton(gearButtons, 1);
     }
 
     public void manual_pressed(View view){
@@ -380,8 +419,8 @@ public class MainActivity extends AppCompatActivity implements Debuggable {
     public void initDebug(boolean debug){
         debugLayout = findViewById(R.id.debugLayout); /* these are to be the textboxes on the display which display gyroscope information */
         debugLayout.setDebugger(this);
-        //debugLayout.addDebugField("steeringAngle", "StrAng");
-        //debugLayout.addDebugField("gasValue", "gas");
+        debugLayout.addDebugField("steeringAngle", "StrAng");
+        debugLayout.addDebugField("gasValue", "gas");
         debugLayout.addDebugField("targetArrowVal", "target arrow angle");
         debugLayout.addDebugField("packetsReceived", "received");
         //debugLayout.addDebugField("packetsSent", "sent");
@@ -391,8 +430,8 @@ public class MainActivity extends AppCompatActivity implements Debuggable {
     @Override
     public void updateDebug() {
         runOnUiThread(() ->{
-            debugLayout.setText("gasValue", lastGasVal);
-            debugLayout.setText("steeringAngle", lastSAVal);
+            debugLayout.setText("gasValue", gasVal);
+            debugLayout.setText("steeringAngle", arrowsView.getSteeringAngle());
             debugLayout.setText("targetArrowVal", arrowsView.getTargetArrowAngle());
             debugLayout.setText("packetsSent", "" + me.packetsSent);
             debugLayout.setText("packetsReceived", "" + me.packetsReceived);
