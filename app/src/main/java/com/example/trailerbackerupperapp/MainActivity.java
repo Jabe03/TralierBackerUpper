@@ -3,7 +3,9 @@ package com.example.trailerbackerupperapp;
 import static java.lang.String.format;
 
 import android.annotation.SuppressLint;
+import android.graphics.Bitmap;
 import android.hardware.SensorManager;
+import android.media.Image;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -25,6 +27,7 @@ import com.example.trailerbackerupperapp.customwidgets.Debuggable;
 import java.util.ArrayList;
 
 import Online.Client;
+import Online.ImageReceiver;
 
 public class MainActivity extends AppCompatActivity implements Debuggable {
     private ArrowsView arrowsView; /* a view object is created on the window, showing the navigation guidance arrows,
@@ -63,12 +66,15 @@ public class MainActivity extends AppCompatActivity implements Debuggable {
         initDebug(false);
         initializeGasAndBrake();
         setupClient();
+        initializeImageReciever();
 
        }
 
 
-
-
+       public void initializeImageReciever(){
+           ImageReceiver iR = new ImageReceiver(this);
+           iR.start();
+       }
 
 
     public void setupClient(){
@@ -300,4 +306,12 @@ public class MainActivity extends AppCompatActivity implements Debuggable {
             debugLayout.setText("packetsSent", "" + me.packetsSent);
         });
         }
+    public void updateTrailerView(Bitmap image){
+        runOnUiThread(() -> {
+            ImageView imageView = findViewById(R.id.TrailerCameraView);
+            imageView.setImageBitmap(image);
+        });
+    }
+
+
 }
