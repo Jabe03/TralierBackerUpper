@@ -11,33 +11,37 @@
         style="@style/Widget.AppCompat.Button"
         android:layout_width="174dp"
         android:layout_height="120dp"
+
         android:layout_marginStart="16dp"
         android:layout_marginBottom="16dp"
-        android:onClick="brake_pressed"
         android:text="Brake"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 
-    <com.example.trailerbackerupperapp.customwidgets.ArrowsView
-        android:id="@+id/ArrowsView"
-        android:layout_width="191dp"
-        android:layout_height="129dp"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="16dp"
+
+    <com.example.trailerbackerupperapp.customwidgets.WheelView
+        android:id="@+id/WheelView"
+        android:layout_width="196dp"
+        android:layout_height="96dp"
+        android:layout_marginStart="4dp"
+
+        android:layout_marginTop="8dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         tools:srcCompat="@tools:sample/avatars" />
 
     <ImageView
-        android:id="@+id/TrailerCameraView"
-        android:layout_width="372dp"
-        android:layout_height="241dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.39"
-        tools:srcCompat="@tools:sample/avatars" />
+        android:id="@+id/imageViewWheel"
+        android:layout_width="150dp"
+        android:layout_height="150dp"
+        android:layout_gravity="center_horizontal"
+
+        android:layout_marginTop="22dp"
+        android:scaleType="centerCrop"
+        android:src="@drawable/steeringwheelimage"
+        app:layout_constraintEnd_toEndOf="@+id/WheelView"
+        app:layout_constraintStart_toStartOf="@+id/WheelView"
+        app:layout_constraintTop_toTopOf="@+id/WheelView" />
 
     <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/GasButton"
@@ -46,16 +50,15 @@
         android:layout_height="120dp"
         android:layout_marginEnd="16dp"
         android:layout_marginBottom="16dp"
-        android:onClick="gas_pressed"
         android:text="Gas"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
     <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/Forward"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="10dp"
+        android:layout_width="100dp"
+        android:layout_height="50dp"
+        android:layout_marginEnd="12dp"
         android:onClick="forward_pressed"
         android:text="Forward"
         app:layout_constraintBottom_toBottomOf="@+id/Park"
@@ -64,8 +67,8 @@
 
     <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/Park"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="100dp"
+        android:layout_height="50dp"
         android:layout_marginBottom="16dp"
         android:onClick="park_pressed"
         android:text="Park"
@@ -75,11 +78,12 @@
 
     <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/Reverse"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="10dp"
-        android:text="Reverse"
+        android:layout_width="100dp"
+        android:layout_height="50dp"
+        android:layout_marginStart="12dp"
+        android:layout_marginBottom="16dp"
         android:onClick="reverse_pressed"
+        android:text="Reverse"
         app:layout_constraintBottom_toBottomOf="@+id/Park"
         app:layout_constraintStart_toEndOf="@+id/Park"
         app:layout_constraintTop_toTopOf="@+id/Park"
@@ -107,6 +111,7 @@
         app:layout_constraintStart_toStartOf="@+id/ManualModeButton"
         app:layout_constraintTop_toBottomOf="@+id/ManualModeButton" />
 
+
     <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/AutomaticModeButton"
         android:layout_width="160dp"
@@ -117,32 +122,35 @@
         app:layout_constraintEnd_toEndOf="@+id/AssistedModeButton"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="@+id/AssistedModeButton"
-        app:layout_constraintTop_toBottomOf="@+id/AssistedModeButton" />
+        app:layout_constraintTop_toBottomOf="@id/AssistedModeButton" />
 
     <ImageView
         android:id="@+id/connection_indicator"
         android:layout_width="10dp"
         android:layout_height="10dp"
-        app:layout_constraintStart_toStartOf="@+id/ArrowsView"
-        app:layout_constraintTop_toTopOf="@+id/ArrowsView"
+        android:layout_marginStart="5dp"
+        android:layout_marginTop="5dp"
+        app:layout_constraintStart_toStartOf="@+id/WheelView"
+        app:layout_constraintTop_toTopOf="@+id/WheelView"
         app:srcCompat="@drawable/disconnected_icon" />
 
     <com.example.trailerbackerupperapp.customwidgets.DebugLayout
         android:id="@+id/debugLayout"
-        android:layout_width="345dp"
-        android:layout_height="188dp"
-        android:layout_marginTop="16dp"
+        android:layout_width="314dp"
+        android:layout_height="186dp"
+        android:layout_marginTop="12dp"
         android:orientation="vertical"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.54"
+        app:layout_constraintHorizontal_bias="0.539"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent">
+
+    </com.example.trailerbackerupperapp.customwidgets.DebugLayout>
 
     <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/off_button"
         android:layout_width="39dp"
         android:layout_height="40dp"
-        android:layout_marginTop="12dp"
         android:insetTop="0dp"
         android:insetBottom="0dp"
         android:onClick="off_pressed"
@@ -151,13 +159,26 @@
         android:rotation="0"
         android:rotationX="0"
         android:rotationY="0"
-        android:text="OFF"
+        android:text="CMC"
         android:textAlignment="center"
         android:textSize="5pt"
         app:cornerRadius="0dp"
         app:iconPadding="0dp"
         app:iconSize="0dp"
+        app:layout_constraintBottom_toTopOf="@+id/GasButton"
         app:layout_constraintEnd_toEndOf="@+id/AutomaticModeButton"
         app:layout_constraintTop_toBottomOf="@+id/AutomaticModeButton" />
+
+    <ImageView
+        android:id="@+id/TrailerCameraView"
+        android:layout_width="357dp"
+        android:layout_height="247dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.588"
+        tools:srcCompat="@tools:sample/avatars" />
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>

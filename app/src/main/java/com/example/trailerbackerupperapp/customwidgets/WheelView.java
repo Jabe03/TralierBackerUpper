@@ -5,13 +5,10 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.View;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-
-import java.util.Arrays;
 
 /**
  * @author Joshua Bergthold
@@ -19,7 +16,7 @@ import java.util.Arrays;
  * The intent is for the arrows to represent turning angles which the computer suggests and the actual turning angle that the user has input.
  * The true arrow represents the user's input and the target arrow represents the computer's suggestion.
  */
-public class ArrowsView extends View {
+public class WheelView extends View {
     /**
      * Paint object used to draw the arrows in the screen
      */
@@ -76,18 +73,17 @@ public class ArrowsView extends View {
      */
     private float[] targetArrow;
 
-
-    public ArrowsView(@NonNull Context context) {
+    public WheelView(@NonNull Context context) {
         super(context);
         init();
     }
 
-    public ArrowsView(@NonNull Context context, @Nullable AttributeSet attrs) {
+    public WheelView(@NonNull Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
         init();
     }
 
-    public ArrowsView(@NonNull Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
+    public WheelView(@NonNull Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         init();
     }
@@ -177,7 +173,7 @@ public class ArrowsView extends View {
      * Computes the coordinates of the true arrow given the new angle of the arrow
      * @param theta the new angle, in radians
      */
-    public void setTrueArrowAngle(double theta){
+    public double setTrueArrowAngle(double theta){
         trueArrowAngle = getBoundedArrowAngle(theta); /* makes sure that the true arrow angle is within the specified bounds,
         otherwise sets the angle to the nearest bounding angle */
 
@@ -186,6 +182,8 @@ public class ArrowsView extends View {
         trueArrow[1] = (float)(Math.sin(trueArrowAngle + Math.PI/((float)2)) * TRUE_ARROW_RATIO * TARGET_ARROW_LENGTH); /*given the bound corrected
         true arrow angle, sets the y coordinate judged by distance from the horizontal top boundary of the view */
         invalidate(); /* marks view as invalid, schedules redraw on next rendering cycle */
+        return trueArrowAngle;
+
     }
     /**
      * Computes the coordinates of the target arrow given the new angle of the arrow
@@ -264,6 +262,7 @@ public class ArrowsView extends View {
         arrowTip[0] = (float)((arrow[0]*cosRatio - arrow[1]*sinRatio)* ARROW_TIP_RATIO);
         arrowTip[1] = (float)((arrow[0]*sinRatio + arrow[1]*cosRatio)* ARROW_TIP_RATIO);
         c.drawLine(endX, endY, endX + arrowTip[0], endY - arrowTip[1], p); /* right side of the arrowhead is drawn */
+
     }
 
     public double getSteeringAngle(){
