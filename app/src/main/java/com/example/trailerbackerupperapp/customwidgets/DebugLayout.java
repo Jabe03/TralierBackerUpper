@@ -56,7 +56,7 @@ public class DebugLayout extends LinearLayout {
 
     public void initDebugButtons(MainActivity act){
         this.debugButtons = new ArrayList<>();
-        debugButtons.add((Button)act.findViewById(R.id.off_button));
+        debugButtons.add(act.findViewById(R.id.off_button));
 
     }
     public void addDebugField(String tag, String prefix){

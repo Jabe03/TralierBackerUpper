@@ -5,7 +5,9 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.View;
+import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -25,7 +27,7 @@ public class WheelView extends View {
     /**
      * Length of the target arrow
      */
-    private final static int TARGET_ARROW_LENGTH = 300;
+    private final static int TARGET_ARROW_LENGTH = 208;
     /**
      * Length of the true arrow relative to the target arrow
      */
@@ -44,7 +46,7 @@ public class WheelView extends View {
     /**
      * Length of the tip of the arrow relative to the length of the arrow itself.
      */
-    private final static double ARROW_TIP_RATIO = 0.2;
+    private final static double ARROW_TIP_RATIO = 0.25;
     /**
      * Angle between shaft of the arrow and one of its tips
      */
@@ -73,8 +75,16 @@ public class WheelView extends View {
      */
     private float[] targetArrow;
 
+    private ImageView wheelImage;
+    private boolean targetEnabled;
+
+    public static double denstity = 0;
+
+    private float densityRatio;
+
     public WheelView(@NonNull Context context) {
         super(context);
+
         init();
     }
 
@@ -87,6 +97,8 @@ public class WheelView extends View {
         super(context, attrs, defStyleAttr);
         init();
     }
+
+
 
     /**
      * Used for testing, creates an arrowRotator thread that continuously rotates both of the arrows in the ArrowsView
@@ -129,10 +141,14 @@ public class WheelView extends View {
         continuouslyRotating = false;
     }
 
+    public void setTargetTickEnabled(boolean enabled){
+        this.targetEnabled = enabled;
+    }
     /**
      * Setup for ArrowsView, always called during its constructors
      */
     private void init(){ /* this function is automatically called when the ArrowsView object is first created */
+        densityRatio = (float)(getResources().getDisplayMetrics().density / 3.5);
         p = new Paint(Paint.ANTI_ALIAS_FLAG); /* creates new paintbrush object called p with anti alias flag set to true which allows for
         smooth rendering of the edges of lines and shapes */
         continuouslyRotating = false; /* arrows not auto rotating right away */
@@ -143,6 +159,10 @@ public class WheelView extends View {
         trueArrow = new float[]{0,(float)(TARGET_ARROW_LENGTH * TRUE_ARROW_RATIO)};  /* true arrow is 65 percent the length of target arrow,
         also vertically oriented */
 
+    }
+
+    public void setWheelImage(ImageView wheel){
+        this.wheelImage = wheel;
     }
 
     /**
@@ -176,7 +196,7 @@ public class WheelView extends View {
     public double setTrueArrowAngle(double theta){
         trueArrowAngle = getBoundedArrowAngle(theta); /* makes sure that the true arrow angle is within the specified bounds,
         otherwise sets the angle to the nearest bounding angle */
-
+        
         trueArrow[0] = (float)(Math.cos(trueArrowAngle + Math.PI/((float)2)) * TRUE_ARROW_RATIO * TARGET_ARROW_LENGTH); /* given the bound
         corrected true arrow angle, sets the x coordinate judged by distance to the vertical halfline axis */
         trueArrow[1] = (float)(Math.sin(trueArrowAngle + Math.PI/((float)2)) * TRUE_ARROW_RATIO * TARGET_ARROW_LENGTH); /*given the bound corrected
@@ -209,20 +229,44 @@ public class WheelView extends View {
     @Override
     public void onDraw(Canvas c){
         super.onDraw(c);
-        p.setColor(Color.GREEN); /* target arrow to be green colored */
-        drawArrow(targetArrow, c , p); /* calls ArrowsView object function which takes in array of two floats called targetArrow representing
+        denstity = getResources().getDisplayMetrics().density;
+        Log.d("PixelDensity", ""+ denstity);
+        if(targetEnabled){
+            p.setColor(Color.GREEN);
+            /* target arrow to be green colored */
+            drawTickMark(targetArrow, c,p);
+        }
+
+        if(wheelImage != null){
+            wheelImage.setRotation((float) -Math.toDegrees(trueArrowAngle));
+        }
+        //drawArrow(targetArrow, c , p);
+        /* calls ArrowsView object function which takes in array of two floats called targetArrow representing
         horizontal distance of the end point of the target arrow
             (which is the green longer arrow that stays in vertical orientation and represents the direction which the other arrow called
             "true arrow" (representing current steer direction) must be matched up to as close as possible in order to achieve accurate steering)
         from the middle vertical of window (this value is set to 0) and the vertical distance of the end point of the target
         arrow from the top of window (this value is set to the target arrow length of 300), canvas object c which "hosts the draw calls",
         and Paint object p which represents the specified paint brush */
-        p.setColor(Color.RED); /* true arrow to be red colored */
-        drawArrow(trueArrow, c, p); /* trueArrow variable is a two float array with first value representing the horizontal distance of
+        //p.setColor(Color.RED); /* true arrow to be red colored */
+        //drawTickmark(trueArrow,c,p);
+        //drawArrow(trueArrow, c, p);
+        /* trueArrow variable is a two float array with first value representing the horizontal distance of
         the end point of the true arrow from the middle vertical of the window (this value is set to 0) and the vertical distance of the end point
         of the target arrow from the top of the window (this value is set to 65 percent of the target arrow length of 300). the true arrow is the
         red shorter arrow which represents the current steering direction of the vehicle and the driver must align it as close to the target arrow as possible
         in order to accomplish correct steering angle */
+    }
+
+    private void drawTickMark(float[] tickCoords, Canvas c, Paint p){
+        p.setStrokeWidth(20*densityRatio);
+        float centerX = getWidth()/((float)2);
+        float centerY = getHeight();
+        float startX = centerX + tickCoords[0]*densityRatio;
+        float startY = centerY - tickCoords[1]*densityRatio;
+        float endX =(float) (startX + ARROW_TIP_RATIO*tickCoords[0]*densityRatio);
+        float endY = (float)(startY - ARROW_TIP_RATIO*tickCoords[1]*densityRatio);
+        c.drawLine(startX,startY,endX,endY,p);
     }
 
     /**
@@ -264,6 +308,7 @@ public class WheelView extends View {
         c.drawLine(endX, endY, endX + arrowTip[0], endY - arrowTip[1], p); /* right side of the arrowhead is drawn */
 
     }
+
 
     public double getSteeringAngle(){
         return trueArrowAngle/INFLATION_FACTOR;

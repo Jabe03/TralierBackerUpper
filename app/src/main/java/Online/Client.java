@@ -24,6 +24,9 @@ public class Client extends OnlineObject {
 
 
 
+
+
+
     /**
      * Creates a client object that connects to a server with the specified port and address.
      * @param address IPv4 address of the server this client connects to
@@ -35,6 +38,7 @@ public class Client extends OnlineObject {
         setPacketProcessor();
         this.address = address;
         this.port = port;
+
     }
 
     public boolean attemptConnection(){
@@ -119,11 +123,11 @@ public class Client extends OnlineObject {
         }
     }
 
-    public void requestCameraChange(boolean state){
+    public void requestCameraChange(int state){
         if(isRunning()){
             Packet p = new Packet(
-                    DefaultOnlineCommands.DEBUG + DefaultOnlineCommands.CAMERA_MODE_CHANGE,
-                    state? 1 : 0,
+                    DefaultOnlineCommands.CONTROL_SIGNAL + DefaultOnlineCommands.CAMERA_MODE_CHANGE,
+                    state,
                     this.getID()
             );
             this.sendAppData(p);

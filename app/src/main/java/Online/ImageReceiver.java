@@ -45,8 +45,8 @@ public class ImageReceiver {
                     //Log.d("ImageReceiver", "dumped buffer");
 
                     while (true) {
-                        if(DebugLayout.debug){
-                            Thread.sleep(300);
+                        if(!DebugLayout.debug){
+                            Thread.sleep(1);
                         }
                         else {
                             count++;
@@ -58,7 +58,7 @@ public class ImageReceiver {
                             socket.receive(packet);
                             Log.d("ImageReceiver", "Packet received, processing");
 
-                            if ((seg[0] & 0xFF) > 1) {
+                            if ((seg[0]) > 1) {
                                 dat = concatenateArrays(dat, copyOfRange(seg, 1, seg.length));
                             } else {
                                 dat = concatenateArrays(dat, copyOfRange(seg, 1, seg.length));
