@@ -96,7 +96,7 @@ public class MainActivity extends AppCompatActivity implements Debuggable {
         trailerCam = findViewById(R.id.TrailerCameraView);
         gearButtons = new ArrayList<>();
         connectionDot = findViewById(R.id.connection_indicator);
-        me = new Client("192.168.1.103", 1102, this);
+        me = new Client("192.168.1.8", 1102, this);
         gasDir = FORWARD;
         gasVal = 0;
         gasButton = findViewById(R.id.GasButton);
@@ -171,7 +171,7 @@ public class MainActivity extends AppCompatActivity implements Debuggable {
             switch (event.getAction()) {
                 case MotionEvent.ACTION_DOWN:
                 case MotionEvent.ACTION_MOVE:
-                    double realVal = Filter.bound(((((v.getHeight() - event.getY()) / v.getHeight()))), 0,1);
+                    double realVal = Filter.bound(((v.getHeight() - event.getY()) / v.getHeight()), 0,1);
                     if(controlState == DefaultOnlineCommands.ASSISTED_MODE){
                         gasVal = gasDir* getGasPercent(realVal, 0.4, 0.65 );
                     } else{
@@ -269,16 +269,10 @@ public class MainActivity extends AppCompatActivity implements Debuggable {
                         me.sendGyroReading(steeringAngle);
                         lastSAVal = steeringAngle;
                     }
-
-
                     if(!Filter.areSimilar(gasVal, lastGasVal, 0.05) && !gasDisabled) {
                         me.sendGasReading(gasVal);
                         lastGasVal = gasVal;
                     }
-                    /*if(lastManualOn != manualOn) {
-                        me.requestCameraChange(manualOn);
-                        lastManualOn = manualOn;
-                    }*/
 
                     last = now;
                 }
@@ -405,7 +399,7 @@ public class MainActivity extends AppCompatActivity implements Debuggable {
             runOnUiThread(() -> gasButton.setBackgroundColor(BUTTON_DISABLED));
         } else{
             gasDisabled = false;
-            double colorWeight = Math.pow(Math.abs(gasVal),1);
+            double colorWeight = Math.abs(gasVal);
             int r = (int) (Color.red(BUTTON_ENABLED) * (1-colorWeight) + Color.red(BUTTON_HILIGHTED)*(colorWeight));
             int g = (int) (Color.green(BUTTON_ENABLED) * (1-colorWeight) + Color.green(BUTTON_HILIGHTED)*(colorWeight));
             int b = (int) (Color.blue(BUTTON_ENABLED) * (1-colorWeight) + Color.blue(BUTTON_HILIGHTED)*(colorWeight));
