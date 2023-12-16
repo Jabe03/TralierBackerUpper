@@ -120,9 +120,7 @@ public final class Packet implements Serializable {
 
 
     public String toJSONString(){
-        //System.out.println(s);
         return String.format("{\"command\":\"%s\", \"data\":\" %s\", \"packetID\":\"%s\", \"authID\":\"%s\"}", command.toString(), data, packetID, authorID);
-
     }
 
     public static String getDataFromJSONString(String jString, String field){

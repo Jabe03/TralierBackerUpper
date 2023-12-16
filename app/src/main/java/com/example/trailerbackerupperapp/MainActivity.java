@@ -36,6 +36,8 @@ import Online.ImageReceiver;
 
 
 public class MainActivity extends AppCompatActivity implements Debuggable {
+
+    private static final String IP_TARGET = "192.168.1.103";
     private WheelView wheelView; /* a view object is created on the window, showing the navigation guidance arrows,*/
 
     private static final boolean streaming = false;
@@ -96,7 +98,7 @@ public class MainActivity extends AppCompatActivity implements Debuggable {
         trailerCam = findViewById(R.id.TrailerCameraView);
         gearButtons = new ArrayList<>();
         connectionDot = findViewById(R.id.connection_indicator);
-        me = new Client("192.168.1.103", 1102, this);
+        me = new Client(IP_TARGET, 1102, this);
         gasDir = FORWARD;
         gasVal = 0;
         gasButton = findViewById(R.id.GasButton);
